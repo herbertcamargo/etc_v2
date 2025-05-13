@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Technical Stack
+
+- Python with FastAPI for the Backend
+- HTML/JS for the Frontend
+- SQL Database, NEVER JSON file storage
+- Separate databases for dev, test and production environments
+- Elasticsearch for search using elastic.co hosting
+- Elastic.co will have dev and prod indexes
+- Implement Pytest with mocked data
+- Make sure the tests cover the requirements of the application

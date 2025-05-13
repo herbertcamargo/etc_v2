@@ -1,0 +1,71 @@
+.payment-form {
+  background-color: var(--color-background-secondary);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.payment-form__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.payment-form__title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: var(--color-text-primary);
+}
+
+.payment-form__description {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+}
+
+.payment-form__secure-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(var(--color-success-rgb), 0.1);
+  color: var(--color-success);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.payment-form__secure-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.payment-form__actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.payment-form__checkout-btn {
+  margin-bottom: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+}
+
+.payment-form__cancel-btn {
+  padding: 8px;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.payment-form__cancel-btn:hover {
+  color: var(--color-text-primary);
+} 

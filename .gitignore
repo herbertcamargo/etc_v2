@@ -1,0 +1,105 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Docker
+.docker/
+.dockerignore
+
+# Database
+*.sqlite3
+*.db
+
+# IDE / Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production
+/build
+/dist
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Alembic revision files
+# Don't ignore these as they should be committed
+# alembic/versions/*.py
+
+# Development environment
+.env.*
+.venv/*
+!.env.example
+
+# Cache directories
+__pycache__/
+.mypy_cache/
+.pyc
+
+# PostgreSQL data directory (if using Docker)
+postgres-data/ 

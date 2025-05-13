@@ -1,0 +1,89 @@
+.plan-card {
+  background-color: var(--color-background-secondary);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 2px solid transparent;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card--selected {
+  border-color: var(--color-primary);
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.plan-card__header {
+  margin-bottom: 16px;
+}
+
+.plan-card__name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--color-text-primary);
+}
+
+.plan-card__description {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.plan-card__pricing {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.plan-card__price {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.plan-card__interval {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+
+.plan-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  flex-grow: 1;
+}
+
+.plan-card__feature {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.plan-card__feature-icon {
+  color: var(--color-success);
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.plan-card__feature-text {
+  color: var(--color-text-primary);
+}
+
+.plan-card__actions {
+  margin-top: auto;
+}
+
+.plan-card__actions .button {
+  width: 100%;
+} 

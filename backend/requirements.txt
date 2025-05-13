@@ -1,0 +1,38 @@
+# API Framework
+fastapi==0.95.0
+uvicorn==0.21.1
+
+# Database
+sqlalchemy==2.0.9
+alembic==1.10.3
+psycopg2-binary==2.9.6
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Validation
+pydantic==1.10.7
+
+# API Client
+python-multipart==0.0.6
+
+# YouTube API
+google-api-python-client>=2.19.1,<2.20.0
+
+# Payment Processing
+stripe==5.4.0
+
+# Monitoring
+prometheus-client==0.17.1
+
+# Utilities
+python-dotenv==1.0.0
+
+# Additional dependencies
+requests==2.28.2
+httpx==0.23.3
+pytest==7.3.1
+pytest-cov==4.1.0
+gunicorn==20.1.0
+tenacity==8.2.2 

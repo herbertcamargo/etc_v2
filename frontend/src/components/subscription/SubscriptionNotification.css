@@ -1,0 +1,55 @@
+.subscription-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.subscription-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-badge--free {
+  background-color: rgba(var(--color-info-rgb), 0.15);
+  color: var(--color-info);
+}
+
+.subscription-badge--premium {
+  background-color: rgba(var(--color-success-rgb), 0.15);
+  color: var(--color-success);
+}
+
+.subscription-badge__icon {
+  margin-right: 4px;
+  font-size: 11px;
+}
+
+.subscription-badge__text {
+  white-space: nowrap;
+}
+
+/* Special styling for limit reached */
+.subscription-badge--free .subscription-badge__text:contains("Limit Reached") {
+  color: var(--color-error);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .subscription-badge__text {
+    display: none;
+  }
+  
+  .subscription-badge__icon {
+    margin-right: 0;
+  }
+  
+  .subscription-badge {
+    padding: 4px;
+  }
+} 

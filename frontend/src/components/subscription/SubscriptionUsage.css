@@ -1,0 +1,94 @@
+.subscription-usage {
+  background-color: var(--color-background-secondary);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.subscription-usage__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.subscription-usage__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.subscription-usage__plan-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subscription-usage__plan-badge--free {
+  background-color: rgba(var(--color-info-rgb), 0.15);
+  color: var(--color-info);
+}
+
+.subscription-usage__plan-badge--month {
+  background-color: rgba(var(--color-primary-rgb), 0.15);
+  color: var(--color-primary);
+}
+
+.subscription-usage__plan-badge--year {
+  background-color: rgba(var(--color-success-rgb), 0.15);
+  color: var(--color-success);
+}
+
+.subscription-usage__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.subscription-usage__stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-usage__stat-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.subscription-usage__stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.subscription-usage__progress-container {
+  margin-top: 16px;
+}
+
+.subscription-usage__progress-bar {
+  height: 8px;
+  background-color: var(--color-background-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.subscription-usage__progress-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.subscription-usage__progress-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: right;
+} 

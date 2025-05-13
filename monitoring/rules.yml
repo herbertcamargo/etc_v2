@@ -1,0 +1,78 @@
+groups:
+- name: backend_alerts
+  rules:
+  - alert: HighErrorRate
+    expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High error rate detected"
+      description: "Error rate is above 5% for the last 5 minutes (current value: {{ $value }})"
+
+  - alert: APIEndpointDown
+    expr: up{job="backend"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "API endpoint is down"
+      description: "The backend API endpoint has been down for more than 1 minute."
+
+  - alert: HighLatency
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{handler!="metrics"}[5m])) by (le)) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High latency detected"
+      description: "95th percentile of request latency is above 1 second for the last 5 minutes (current value: {{ $value }}s)"
+
+- name: database_alerts
+  rules:
+  - alert: DatabaseDown
+    expr: up{job="postgres-exporter"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Database is down"
+      description: "The database has been down for more than 1 minute."
+
+  - alert: HighDatabaseLoad
+    expr: rate(pg_stat_activity_count{state="active"}[5m]) > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High database load"
+      description: "Database has more than 50 active connections for the last 5 minutes (current value: {{ $value }})"
+
+  - alert: LowDiskSpace
+    expr: node_filesystem_avail_bytes{mountpoint="/var/lib/postgresql/data"} / node_filesystem_size_bytes{mountpoint="/var/lib/postgresql/data"} * 100 < 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low disk space"
+      description: "Database server has less than 10% free disk space (current value: {{ $value }}%)"
+
+- name: system_alerts
+  rules:
+  - alert: HighCPULoad
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU load"
+      description: "CPU load is above 85% for the last 5 minutes (current value: {{ $value }}%)"
+
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage"
+      description: "Memory usage is above 90% for the last 5 minutes (current value: {{ $value }}%)" 
