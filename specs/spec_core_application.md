@@ -1,5 +1,22 @@
 # Specification: Core Transcription Application
-
+<!-- 
+1. Overview
+2. Page Routing & Structure
+3. UI/UX Design and Accessibility
+4. Video Player Buttons & Behavior
+5. Frontend Logic & State Management
+6. Backend Architecture
+7. API Endpoints
+8. Comprehensive Data Models
+9. Testing Strategy
+10. Deployment Considerations
+11. Theme System Implementation
+12. Compliance Requirements
+13. UI Layout System and Grid Specifications
+14. Project Structure Alignment
+15. Additional Implementation Guidelines
+16. Conclusion 
+-->
 ## 1. Overview
 
 This document defines the comprehensive requirements and implementation details for the transcription workflow application. It integrates the transcription page creation, buttons and behaviors, caching mechanism, YouTube video capture service, and transcription correction logic into a cohesive specification. It fully aligns with the codebase's architecture, design system, API conventions, accessibility, performance targets, and testing strategy.
