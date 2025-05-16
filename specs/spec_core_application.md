@@ -1257,6 +1257,21 @@ This section categorizes the components of this specification into frontend and 
 - Responsive embedded YouTube iframe
 - Error handling for unsupported videos
 - Page scroll anchoring
+- **IMPORTANT**: Must implement the `loading="lazy"` attribute for performance optimization as recommended in the YouTube iframe documentation
+- **Implementation Example**:
+  ```html
+  <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+    <iframe 
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+      src="https://www.youtube.com/embed/{VIDEO_ID}" 
+      title="YouTube video player" 
+      frameborder="0"
+      loading="lazy" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+      allowfullscreen>
+    </iframe>
+  </div>
+  ```
 - **Reference**: Section 3.2 of this document
 
 ##### Transcription Input
@@ -1308,6 +1323,49 @@ This section categorizes the components of this specification into frontend and 
 - Debounced YouTube search requests
 - **Reference**: Section 5 of this document
 
+##### Error Boundaries Implementation
+- Implement React Error Boundaries to catch and handle errors gracefully
+- **Implementation Example**:
+```jsx
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Error caught:", error, errorInfo);
+    // Report to error tracking service (if applicable)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="error-fallback">
+        <h2>Something went wrong</h2>
+        <p>We apologize for the inconvenience. Please try refreshing the page.</p>
+      </div>;
+    }
+
+    return this.props.children;
+  }
+}
+```
+- Wrap key component sections with Error Boundaries to prevent entire application crashes
+- **Usage Example**:
+```jsx
+<ErrorBoundary>
+  <TranscriptionInput />
+</ErrorBoundary>
+
+<ErrorBoundary>
+  <VideoPlayer />
+</ErrorBoundary>
+```
+
 ##### Loading and Error Feedback
 - Consistent spinner component
 - Inline error messages
@@ -1331,7 +1389,59 @@ This section categorizes the components of this specification into frontend and 
 
 ### 14.2 Backend Components
 
-#### 14.2.1 YouTube Video Service
+#### 14.2.1 Project Structure
+Following the recommended FastAPI project structure from best practices:
+```
+backend/
+├── alembic/                  # Database migrations
+├── app/
+│   ├── api/                  # API endpoints
+│   │   ├── routes/
+│   │   │   ├── auth.py       # Authentication routes
+│   │   │   ├── transcription.py  # Transcription routes
+│   │   │   ├── videos.py     # YouTube video routes
+│   │   │   └── __init__.py
+│   │   └── __init__.py
+│   ├── core/                 # Core application code
+│   │   ├── config.py         # Application configuration
+│   │   ├── security.py       # Security utilities
+│   │   ├── exceptions.py     # Global exceptions
+│   │   └── middleware.py     # Custom middleware
+│   ├── db/                   # Database
+│   │   ├── repositories/     # Database repository pattern
+│   │   ├── models.py         # SQLAlchemy models
+│   │   ├── session.py        # Database session
+│   │   └── base.py           # Base model class
+│   ├── schemas/              # Pydantic models
+│   │   ├── auth.py
+│   │   ├── transcription.py
+│   │   ├── video.py
+│   │   └── base.py           # Base schema with custom serialization
+│   ├── services/             # Business logic
+│   │   ├── auth_service.py
+│   │   ├── transcription_service.py
+│   │   ├── video_service.py
+│   │   └── youtube_client.py
+│   ├── utils/                # Utility functions
+│   │   ├── cache.py          # Caching utilities
+│   │   └── validation.py     # Custom validators
+│   └── main.py               # Application entry point
+├── tests/                    # Test directory
+│   ├── api/                  # API tests
+│   ├── services/             # Service tests
+│   ├── conftest.py           # Test configuration
+│   └── test_main.py          # Main tests
+├── requirements/
+│   ├── base.txt              # Base requirements
+│   ├── dev.txt               # Development requirements
+│   └── prod.txt              # Production requirements
+├── .env                      # Environment variables
+├── .env.example              # Example environment variables
+├── alembic.ini               # Alembic configuration
+└── README.md                 # Project documentation
+```
+
+#### 14.2.2 YouTube Video Service
 
 ##### YouTube API Client
 ```python
@@ -1379,7 +1489,7 @@ class TranscriptDebugger:
 ```
 - **Reference**: Section 6.1.1 of this document
 
-#### 14.2.2 Transcription Caching System
+#### 14.2.3 Transcription Caching System
 
 ##### In-Memory Caching
 - LRUCache implementation with 100MB limit
@@ -1411,7 +1521,7 @@ def get_transcription(video_id: str):
 - Cache invalidation and monitoring
 - **Reference**: Section 6.2.6 of this document
 
-#### 14.2.3 Transcription Correction Logic
+#### 14.2.4 Transcription Correction Logic
 
 ##### Word Model
 ```python
@@ -1453,7 +1563,7 @@ class TranscriptionComparerV4Pro:
 - Historical data analysis
 - **Reference**: Section 6.3.6 of this document
 
-#### 14.2.4 API Endpoints
+#### 14.2.5 API Endpoints
 
 ##### Video Search and Retrieval
 ```python
@@ -1487,7 +1597,7 @@ async def analyze_transcription(request: schemas.TranscriptionAnalysisRequest)
 ```
 - **Reference**: Section 7.3 of this document
 
-#### 14.2.5 Data Schemas
+#### 14.2.6 Data Schemas
 
 ##### Video Schemas
 ```python
@@ -1552,3 +1662,32 @@ The classification is aligned with the project directory structure defined in pr
 - Backend: `backend/app/services/youtube.py` and `backend/app/services/transcription.py`
 
 _This document supersedes all prior ad-hoc instructions for the transcription workflow. All future work must comply fully with this specification._ 
+
+## 15. Additional Implementation Guidelines
+
+### 15.1. Code Documentation and Organization
+
+- **Module Documentation**: For any code module created, include complete documentation of the requirements this module fulfills in comments at the top of the file.
+- **File Size Limits**: Strictly maintain files under 200-300 lines of code. Refactor when approaching these limits.
+- **Scripting Practices**: Avoid writing scripts in files whenever possible, especially if the script is likely to be run only once.
+- **Environment Variables**: NEVER overwrite any .env file without first asking and confirming with the project owner.
+
+### 15.2. Change Management
+
+- **Changelog Updates**: All changes implemented must be documented in `progress-tracking/CHANGELOG.md`.
+- **Implementation Scope**: DO NOT touch code that is unrelated to the task at hand.
+- **Technology Introduction**: When fixing an issue or bug, DO NOT introduce a new pattern or technology without first exhausting all other options for the existing implementation. If a new pattern must be introduced, REMOVE the old implementation to avoid duplicate logic.
+
+### 15.3. Testing Requirements
+
+- **Test Framework**: Implement Pytest with mocked data for all backend components.
+- **Test Coverage**: Ensure tests cover all requirements specified in the application.
+- **Mocking Data**: Mocking data is ONLY permitted for tests, NEVER for dev or prod environments.
+- **Stubbing Practices**: Never add stubbing or fake data patterns to code that affects the dev or prod environments.
+
+### 15.4. Environment Considerations
+
+- **Environment Awareness**: All code must take into account the different environments: dev, test, and prod.
+- **Elasticsearch Indexes**: Ensure Elasticsearch configurations include separate dev and prod indexes.
+
+All implementation work must adhere to these guidelines in addition to the detailed specifications in previous sections. 
