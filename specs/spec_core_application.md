@@ -8,236 +8,23 @@ This document defines the comprehensive requirements and implementation details 
 
 ## 1.1. Specification Source Traceability
 
-This document is a synthesis and adaptation of the following detailed specifications, which MUST be referenced for implementation details and rationale:
-- [Video Player Buttons & Behavior Guide](specs/spec_But_Log.md)
-- [YouTube Transcription Caching Mechanism](specs/spec_Cac_Mec.md)
-- [YouTube Video Capture and Transcription Service](specs/spec_cap_tra.md)
-- [Advanced Transcription Correction Logic Specification](specs/spec_tra_cor.md)
-- [Transcription Flow Page Creation](specs/spec_Tra_Pag.md)
 
-Wherever ambiguity or conflict arises, the most specific referenced spec takes precedence for its domain.
 
 ---
 
 ## 1.2. Integration of Detailed Requirements from Source Specifications
 
-This section contains the full integration of all implementation details, code snippets, and requirements from the following source specifications, ensuring no detail is omitted:
-- [Video Player Buttons & Behavior Guide](specs/spec_But_Log.md)
-- [YouTube Transcription Caching Mechanism](specs/spec_Cac_Mec.md)
-- [YouTube Video Capture and Transcription Service](specs/spec_cap_tra.md)
-- [Advanced Transcription Correction Logic Specification](specs/spec_tra_cor.md)
-- [Transcription Flow Page Creation](specs/spec_Tra_Pag.md)
-
-Wherever a section below is marked as "[INTEGRATED FROM ...]", it is a direct, complete inclusion of content from the referenced spec, unless already present in this document. This ensures full traceability and no loss of detail.
+This section contains the full integration of all implementation details, code snippets, and requirements from multiple source specifications, ensuring no detail is omitted.
 
 ---
 
-### [INTEGRATED FROM specs/spec_But_Log.md]
+## Advanced Transcription Correction Logic Specification
 
-# 🎛️ Video Player Buttons & Behavior Guide
+### Core Components, Algorithm, and Implementation
 
-## 1. `Pause_Delay_Dropdown`
-- **Label**: `"Pause Delay"`
-- **Options**: `0`, `1`, `2`, `3`, `5` (seconds)
-- **Default**: `2` seconds or the last user selection
-
-### Behavior
-- If the selected value is **not `0`**:
-  - When the user **types or deletes** inside the transcription input (`#user-try`):
-    - Start or **restart** a countdown for the selected seconds
-    - While the countdown is running: **pause** the video
-    - When the countdown ends: **resume** playback
-- Countdown is only triggered if:
-  - The video was **already playing**, or
-  - The countdown was already **active**
-
-## 2. `Rewind_time_Dropdown`
-- **Label**: `"Rewind time"`
-- **Options**: `0.0`, `0.25`, `0.5`, `0.75`, `1`, `2`, `3`, `5` (seconds)
-- **Default**: `2` seconds or the last user selection
-
-### Behavior
-- This dropdown serves **two purposes**:
-  1. Referenced by the `Rewind_Button`
-  2. Works **with `Pause_Delay_Dropdown`**:
-     - If both dropdowns are set to a value different from `0`:
-       - When the `Pause_Delay_Dropdown` countdown ends:
-         - **Rewind** the video by the selected `Rewind_time_Dropdown` value
-         - Then **continue playing**
-
-## 3. `Rewind_Button`
-- **Label**: `"Rewind"` (centered)
-- **Action**: On click, rewinds the video by the currently selected `Rewind_time_Dropdown` value
-
-## 4. `Play_Stop_Button`
-- **State 1** (video is playing):
-  - Text: `"Stop"`
-  - Color: **dark red**
-  - Text color: **white**
-- **State 2** (video is paused):
-  - Text: `"Play"`
-  - Color: **dark green**
-  - Text color: **white**
-
-### Behavior
-- On click: toggle video state
-  - If playing → pause
-  - If paused → play
-
-## 5. `Submit_Transcription_Button`
-- **State 1** (transcription comparison results are not shown):
-  - Text: `"Submit Transcription"`
-  - Color: **dark yellow**
-  - Text color: **white**
-- **State 2** (transcription comparison results are  shown):
-  - Text: `"Try Again"`
-  - Color: **dark amber**
-  - Text color: **white**
-
-### Behavior
-- On click: activate the backend steps to generate the transcription comparison results
-  - If transcription comparison results are not yet shown → show transcription comparison results
-  - If transcription comparison results are being shown → stop showing the transcription comparison results
-
----
-
-### [INTEGRATED FROM specs/spec_Cac_Mec.md]
-
-# 📦 YouTube Transcription Caching Mechanism (Python + cachetools)
-
-## Implementation Example
-
-```python
-from cachetools import LRUCache
-import sys
-
-# Roughly estimate size of each transcription in bytes
-def estimate_size(transcription):
-    return sys.getsizeof(transcription)
-
-# Initialize cache with size in bytes
-cache = LRUCache(maxsize=100 * 1024 * 1024, getsizeof=estimate_size)
-
-def save_transcription(video_id: str, transcription: str):
-    cache[video_id] = transcription
-
-def get_transcription(video_id: str):
-    return cache.get(video_id)
-```
-
----
-
-### [INTEGRATED FROM specs/spec_cap_tra.md]
-
-# YouTube Video Capture and Transcription Service
-
-## Core Components
-
-#### 1. YouTube API Client
-
-```python
-class YouTubeClient:
-    """
-    Client for interacting with YouTube Data API v3.
-    Handles authentication, video searching, and metadata retrieval.
-    """
-    # ... (full class as in spec_cap_tra.md)
-```
-
-#### 2. Transcript Service
-
-```python
-class TranscriptService:
-    """
-    Service for retrieving and processing YouTube video transcripts.
-    Supports multiple retrieval methods and caching.
-    """
-    # ... (full class as in spec_cap_tra.md)
-```
-
-#### 3. Caching Layer
-
-```python
-class YouTubeCache:
-    """
-    Caching service for YouTube data.
-    Provides persistent caching for video details and transcripts.
-    """
-    # ... (full class as in spec_cap_tra.md)
-```
-
-#### 4. Debug and Logging Component
-
-```python
-class TranscriptDebugger:
-    """
-    Debug helper for transcript retrieval.
-    Logs and tracks detailed information about transcript retrieval processes.
-    """
-    # ... (full class as in spec_cap_tra.md)
-```
-
-## API Endpoints
-
-- GET /api/v1/videos/search
-- GET /api/v1/videos/{video_id}
-- GET /api/v1/videos/{video_id}/transcript
-
-## Data Models
-
-```python
-# schemas/video.py
-
-class VideoSearchResult(BaseModel):
-    """Schema for YouTube video search results."""
-    id: str
-    title: str
-    thumbnail: str
-    channel: str
-    published_at: datetime
-
-class VideoDetails(BaseModel):
-    """Schema for detailed YouTube video information."""
-    video_id: str
-    title: str
-    channel: str
-    description: str
-    embed_url: str
-    duration: str  # ISO 8601 duration format
-    
-class VideoTranscript(BaseModel):
-    """Schema for YouTube video transcript."""
-    video_id: str
-    transcript: str
-    timestamps: List[float]  # Start time for each word
-    debug_info: Optional[List[str]]  # Debug information if debug_mode=True
-```
-
-## Implementation Details
-
-- Configuration, dependencies, proxy support, performance, and testing strategies as in spec_cap_tra.md.
-
----
-
-### [INTEGRATED FROM specs/spec_tra_cor.md]
-
-# Advanced Transcription Correction Logic Specification
-
-## Core Components, Algorithm, and Implementation
-
-- Full Word model, TranscriptionComparerV4Pro, are_equivalent, compare, realign_with_dubles, generate_dubles, are_dubles_equivalent, fill_field_gaps, is_mistake, and all helper functions as in spec_tra_cor.md.
+- Full Word model, TranscriptionComparerV4Pro, are_equivalent, compare, realign_with_dubles, generate_dubles, are_dubles_equivalent, fill_field_gaps, is_mistake, and all helper functions.
 - Full backend API integration example for /transcriptions/analyze endpoint.
-- All performance, testing, and enhancement notes as in spec_tra_cor.md.
-
----
-
-### [INTEGRATED FROM specs/spec_Tra_Pag.md]
-
-# Specification: Transcription Flow Page Creation
-
-- All frontend structure, component, and state management requirements as in spec_Tra_Pag.md.
-- All backend/API integration, error/loading/edge state handling, accessibility, testing, and design consistency requirements as in spec_Tra_Pag.md.
-- All implementation notes and gotchas as in spec_Tra_Pag.md.
+- All performance, testing, and enhancement notes.
 
 ---
 
@@ -253,7 +40,7 @@ class VideoTranscript(BaseModel):
 ### 2.2. Component Architecture
 
 - All shared UI elements must be abstracted into reusable components.
-- Follow the project's React directory conventions as detailed in [Transcription Flow Page Creation](specs/spec_Tra_Pag.md):
+- Follow the project's React directory conventions:
 
 ```
 src/
@@ -691,7 +478,7 @@ def get_transcription(video_id: str):
 
 ### 6.2.6. Persistent and In-Memory Caching (Expanded)
 
-- In addition to in-memory caching with `cachetools.LRUCache`, implement persistent/disk caching for video details and transcripts as described in [YouTube Video Capture and Transcription Service](specs/spec_cap_tra.md):
+- In addition to in-memory caching with `cachetools.LRUCache`, implement persistent/disk caching for video details and transcripts:
   - Use a cache directory structure: `cache/video_details` and `cache/transcripts`.
   - Provide async methods for get/save for both in-memory and disk cache.
   - Document cache invalidation and manual clearing procedures.
@@ -1204,403 +991,529 @@ async def analyze_transcription(
     }
 ```
 
-## 13. Changelog
+### 7.4. Authentication System
 
-- **[2023-07-15]**: Fully integrated all missing and previously unadapted details from specs/spec_But_Log.md, specs/spec_Cac_Mec.md, specs/spec_cap_tra.md, specs/spec_tra_cor.md, and specs/spec_Tra_Pag.md, including all implementation details, code snippets, and requirements. This ensures the core application specification is now fully comprehensive and traceable to all source specs.
+All authentication endpoints should follow the `/api/v1/auth/` prefix convention for better organization and versioning control. These endpoints handle user registration, login, token management, and password resets.
 
-## 14. Component Classification
-
-This section categorizes the components of this specification into frontend and backend domains for clearer team assignment, organizes implementation details according to architectural layers, and highlights integration points between systems. It provides a guide to help development teams efficiently implement the specification.
-
-### 14.1 Frontend Components
-
-#### 14.1.1 Page Structure and Routing
-- **Routes**: `/transcribe` and `/transcribe/:videoId`
-- **Component Architecture**:
-  ```
-  src/
-  ├── pages/
-  │   ├── transcribe/
-  │   │   ├── index.tsx        // Video search page
-  │   │   └── [videoId].tsx    // Transcription page
-  ├── components/
-  │   ├── YouTubeSearch/
-  │   ├── SearchResults/
-  │   ├── VideoPlayer/
-  │   ├── TranscriptionInput/
-  │   ├── ButtonSet/
-  │   └── ResultsOutput/
-  ```
-- **Reference**: Section 2.2 of this document
-
-#### 14.1.2 UI/UX Design
-- **Design Principles**: Minimalist UI with whitespace, clear hierarchy, subtle animations
-- **Color Palette**: Follows the refined palette from frontend-update.md
-- **Accessibility**: Semantic HTML, ARIA attributes, keyboard navigation, contrast ratios
-- **Reference**: Section 3.1 of this document
-
-#### 14.1.3 Key UI Components
-
-##### YouTube Search Bar
-- Large input with floating label
-- Gradient "Search" button
-- Keyboard accessibility features
-- **Reference**: Section 3.2 of this document
-
-##### Search Results
-- 4x3 responsive grid of video results
-- Result cards with thumbnails and metadata
-- User authentication check before navigation
-- **Reference**: Section 3.2 of this document
-
-##### Video Player
-- Responsive embedded YouTube iframe
-- Error handling for unsupported videos
-- Page scroll anchoring
-- **IMPORTANT**: Must implement the `loading="lazy"` attribute for performance optimization as recommended in the YouTube iframe documentation
-- **Implementation Example**:
-  ```html
-  <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-    <iframe 
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-      src="https://www.youtube.com/embed/{VIDEO_ID}" 
-      title="YouTube video player" 
-      frameborder="0"
-      loading="lazy" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-      allowfullscreen>
-    </iframe>
-  </div>
-  ```
-- **Reference**: Section 3.2 of this document
-
-##### Transcription Input
-- Multi-line textarea with floating label
-- Character/word count
-- Auto-save functionality
-- Previous attempt retention on "Try Again"
-- **Reference**: Section 3.2 of this document
-
-##### Button Set
-- **Pause Delay Dropdown**:
-  - Options: 0, 1, 2, 3, 5 seconds
-  - Default: 2 seconds
-  - Tooltip: "Sets how long the video remains paused after you stop typing"
-
-- **Rewind Time Dropdown**:
-  - Options: 0.0, 0.25, 0.5, 0.75, 1, 2, 3, 5 seconds
-  - Default: 2 seconds
-  - Tooltip: "Controls how far back the video rewinds after pausing"
-
-- **Rewind Button**:
-  - Label: "Rewind"
-  - Action: Rewind by selected time
-  - Tooltip: "Rewinds the video by the selected time amount"
-
-- **Play/Stop Button**:
-  - State-based appearance (Play/Stop)
-  - Color coding: dark green/dark red
-  - Tooltip: "Play or pause the video playback"
-
-- **Submit Transcription Button**:
-  - State-based appearance (Submit/Try Again)
-  - Color coding: dark yellow/dark amber
-  - Tooltip: Changes based on current state
-- **Reference**: Section 4 of this document
-
-##### Results Output
-- Titled "Transcription Results" box
-- Animated transitions with fade-in
-- Highlighting effect for new results
-- Smooth scroll to results section
-- Accessibility considerations for animations
-- **Reference**: Section 3.2 of this document
-
-#### 14.1.4 Frontend Logic & State Management
-- React Context API for global state
-- Local state for transient UI elements
-- Loading and error feedback for all actions
-- Debounced YouTube search requests
-- **Reference**: Section 5 of this document
-
-##### Error Boundaries Implementation
-- Implement React Error Boundaries to catch and handle errors gracefully
-- **Implementation Example**:
-```jsx
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("Error caught:", error, errorInfo);
-    // Report to error tracking service (if applicable)
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <div className="error-fallback">
-        <h2>Something went wrong</h2>
-        <p>We apologize for the inconvenience. Please try refreshing the page.</p>
-      </div>;
-    }
-
-    return this.props.children;
-  }
-}
-```
-- Wrap key component sections with Error Boundaries to prevent entire application crashes
-- **Usage Example**:
-```jsx
-<ErrorBoundary>
-  <TranscriptionInput />
-</ErrorBoundary>
-
-<ErrorBoundary>
-  <VideoPlayer />
-</ErrorBoundary>
-```
-
-##### Loading and Error Feedback
-- Consistent spinner component
-- Inline error messages
-- Toast notifications for transient errors
-- Logging of errors to monitoring system
-- **Reference**: Section 5.1 of this document
-
-##### Auto-save Draft Implementation
-- LocalStorage with unique keys per video
-- SessionStorage fallback
-- Save triggers after inactivity, navigation, and submission
-- Restoration notification and functionality
-- **Reference**: Section 5.2 of this document
-
-##### Animated Transitions
-- 300ms fade-in transition
-- Highlight effect for new results
-- Smooth scrolling behavior
-- Respect for reduced motion preferences
-- **Reference**: Section 3.2 of this document
-
-### 14.2 Backend Components
-
-#### 14.2.1 Project Structure
-Following the recommended FastAPI project structure from best practices:
-```
-backend/
-├── alembic/                  # Database migrations
-├── app/
-│   ├── api/                  # API endpoints
-│   │   ├── routes/
-│   │   │   ├── auth.py       # Authentication routes
-│   │   │   ├── transcription.py  # Transcription routes
-│   │   │   ├── videos.py     # YouTube video routes
-│   │   │   └── __init__.py
-│   │   └── __init__.py
-│   ├── core/                 # Core application code
-│   │   ├── config.py         # Application configuration
-│   │   ├── security.py       # Security utilities
-│   │   ├── exceptions.py     # Global exceptions
-│   │   └── middleware.py     # Custom middleware
-│   ├── db/                   # Database
-│   │   ├── repositories/     # Database repository pattern
-│   │   ├── models.py         # SQLAlchemy models
-│   │   ├── session.py        # Database session
-│   │   └── base.py           # Base model class
-│   ├── schemas/              # Pydantic models
-│   │   ├── auth.py
-│   │   ├── transcription.py
-│   │   ├── video.py
-│   │   └── base.py           # Base schema with custom serialization
-│   ├── services/             # Business logic
-│   │   ├── auth_service.py
-│   │   ├── transcription_service.py
-│   │   ├── video_service.py
-│   │   └── youtube_client.py
-│   ├── utils/                # Utility functions
-│   │   ├── cache.py          # Caching utilities
-│   │   └── validation.py     # Custom validators
-│   └── main.py               # Application entry point
-├── tests/                    # Test directory
-│   ├── api/                  # API tests
-│   ├── services/             # Service tests
-│   ├── conftest.py           # Test configuration
-│   └── test_main.py          # Main tests
-├── requirements/
-│   ├── base.txt              # Base requirements
-│   ├── dev.txt               # Development requirements
-│   └── prod.txt              # Production requirements
-├── .env                      # Environment variables
-├── .env.example              # Example environment variables
-├── alembic.ini               # Alembic configuration
-└── README.md                 # Project documentation
-```
-
-#### 14.2.2 YouTube Video Service
-
-##### YouTube API Client
 ```python
-class YouTubeClient:
+# POST /api/v1/auth/register
+@router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+async def register_user(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db)
+):
     """
-    Client for interacting with YouTube Data API v3.
-    Handles authentication, video searching, and metadata retrieval.
-    """
+    Register a new user.
     
-    # Methods for:
-    # - Client authentication
-    # - Video search
-    # - Video details
-    # - Caption listing
-```
-- **Reference**: Section 6.1.1 of this document
+    Args:
+        user: User registration data
+        db: Database session
+        
+    Returns:
+        The newly created user
+        
+    Raises:
+        HTTPException: If email already exists
+    """
+    db_user = users_crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    return users_crud.create_user(db=db, user=user)
 
-##### Transcript Service
-```python
-class TranscriptService:
+# POST /api/v1/auth/login
+@router.post("/login", response_model=schemas.Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
     """
-    Service for retrieving and processing YouTube video transcripts.
-    Supports multiple retrieval methods and caching.
-    """
+    Authenticate user and provide access token.
     
-    # Methods for:
-    # - Transcript retrieval
-    # - Transcript processing
-    # - Sound indication filtering
-    # - Caption availability checking
-```
-- **Reference**: Section 6.1.1 of this document
-
-##### Transcript Debugger
-```python
-class TranscriptDebugger:
+    Args:
+        form_data: OAuth2 password request form
+        db: Database session
+        
+    Returns:
+        Access token
+        
+    Raises:
+        HTTPException: If authentication fails
     """
-    Debug helper for transcript retrieval.
-    Logs detailed information about transcript processes.
-    """
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
-    # Methods for:
-    # - Logging debug messages
-    # - Retrieving and clearing logs
-```
-- **Reference**: Section 6.1.1 of this document
-
-#### 14.2.3 Transcription Caching System
-
-##### In-Memory Caching
-- LRUCache implementation with 100MB limit
-- Memory usage monitoring
-- Size estimation for transcriptions
-- Key-based retrieval with YouTube IDs
-
-```python
-from cachetools import LRUCache
-import sys
-
-def estimate_size(transcription):
-    return sys.getsizeof(transcription)
-
-cache = LRUCache(maxsize=100 * 1024 * 1024, getsizeof=estimate_size)
-
-def save_transcription(video_id: str, transcription: str):
-    cache[video_id] = transcription
-
-def get_transcription(video_id: str):
-    return cache.get(video_id)
-```
-- **Reference**: Section 6.2 of this document
-
-##### Persistent Caching
-- Disk caching for video details and transcripts
-- Directory structure: `cache/video_details` and `cache/transcripts`
-- Async methods for get/save operations
-- Cache invalidation and monitoring
-- **Reference**: Section 6.2.6 of this document
-
-#### 14.2.4 Transcription Correction Logic
-
-##### Word Model
-```python
-@dataclass
-class Word:
-    text: str                # Original text
-    timestamp: float         # Video timestamp
-    normalized: str = ""     # Normalized form
-```
-- **Reference**: Section 6.3.2 of this document
-
-##### Transcription Comparer
-```python
-class TranscriptionComparerV4Pro:
-    """
-    Advanced comparer for transcription texts with
-    sophisticated word matching and alignment algorithms.
-    """
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
     
-    # Methods for:
-    # - Direct word comparison
-    # - Realignment with "dubles"
-    # - Gap filling
-    # - Result classification
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# POST /api/v1/auth/logout
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Log out the current user by invalidating their token.
+    
+    Note: For a complete implementation, this would add the token to a blocklist
+    or implement a token invalidation strategy.
+    
+    Args:
+        current_user: Current authenticated user
+    """
+    # In a real implementation, you would add the token to a blacklist
+    # or implement a token invalidation strategy
+    return {}
+
+# POST /api/v1/auth/refresh
+@router.post("/refresh", response_model=schemas.Token)
+async def refresh_token(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    """
+    Refresh an existing access token.
+    
+    Args:
+        token: Current access token
+        db: Database session
+        
+    Returns:
+        New access token
+        
+    Raises:
+        HTTPException: If token is invalid
+    """
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        token_data = schemas.TokenPayload(**payload)
+        
+        if token_data.sub is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        user = users_crud.get_user_by_id(db, uuid.UUID(token_data.sub))
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+        
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+# POST /api/v1/auth/reset-password
+@router.post("/reset-password", status_code=status.HTTP_204_NO_CONTENT)
+async def reset_password(
+    reset_data: schemas.PasswordReset,
+    db: Session = Depends(get_db)
+):
+    """
+    Reset user's password.
+    
+    Args:
+        reset_data: Password reset data containing email
+        db: Database session
+        
+    Raises:
+        HTTPException: If email not found
+    """
+    user = users_crud.get_user_by_email(db, email=reset_data.email)
+    if not user:
+        # Don't leak information about registered emails
+        # Still return 204 for security reasons
+        return {}
+    
+    # In a real implementation, this would:
+    # 1. Generate a password reset token
+    # 2. Send an email with a reset link
+    # 3. Store the token in the database with expiration
+    
+    # For the purpose of this specification, we'll just acknowledge the request
+    return {}
 ```
-- **Reference**: Section 6.3.2 of this document
 
-##### Comparison Classification Types
-- `correct`: Perfect match
-- `mistake`: Minor error (similarity ratio ≥ threshold)
-- `missing`: Word from reference not in user text
-- `wrong`: Word in user text not in reference
-- **Reference**: Section 6.3.4 of this document
+#### 7.4.1. Authentication Data Models
 
-##### Learning Analytics
-- Mistake pattern tracking
-- Personalized recommendations
-- Progress visualization
-- Historical data analysis
-- **Reference**: Section 6.3.6 of this document
-
-#### 14.2.5 API Endpoints
-
-##### Video Search and Retrieval
 ```python
-# GET /api/v1/videos/search?q=...
-@router.get("/search", response_model=List[schemas.VideoSearchResult])
-async def search_videos(query: str, max_results: int = 10)
+# schemas/users.py
 
-# GET /api/v1/videos/:id
-@router.get("/{video_id}", response_model=schemas.VideoDetails)
-async def get_video_details(video_id: str)
+class UserBase(BaseModel):
+    """Base schema for user data."""
+    email: EmailStr
+    username: str
+
+class UserCreate(UserBase):
+    """Schema for creating a new user."""
+    password: str
+    
+    @validator('password')
+    def password_strength(cls, v):
+        """Validate password strength."""
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        if not any(char.isdigit() for char in v):
+            raise ValueError('Password must contain at least one digit')
+        if not any(char.isupper() for char in v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        return v
+
+class UserResponse(UserBase):
+    """Schema for user response data."""
+    id: UUID
+    is_premium: bool
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
+
+class Token(BaseModel):
+    """Schema for authentication token."""
+    access_token: str
+    token_type: str
+
+class TokenPayload(BaseModel):
+    """Schema for token payload."""
+    sub: Optional[str] = None
+    exp: Optional[int] = None
+
+class PasswordReset(BaseModel):
+    """Schema for password reset request."""
+    email: EmailStr
 ```
-- **Reference**: Section 7.1 of this document
 
-##### Transcript Retrieval
+#### 7.4.2. Authentication Security Implementation
+
+The authentication system uses JWT (JSON Web Tokens) for secure token-based authentication:
+
 ```python
-# GET /api/v1/videos/{video_id}/transcript
-@router.get("/{video_id}/transcript", response_model=schemas.VideoTranscript)
-async def get_video_transcript(
-    video_id: str,
-    languages: Optional[List[str]] = Query(None),
-    debug_mode: bool = Query(False)
-)
+# core/security.py
+
+from datetime import datetime, timedelta
+from typing import Any, Optional, Union
+
+from jose import jwt
+from passlib.context import CryptContext
+
+# Constants
+ALGORITHM = "HS256"
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Verify if plain password matches hashed password.
+    
+    Args:
+        plain_password: Plain text password
+        hashed_password: Hashed password
+        
+    Returns:
+        True if passwords match, False otherwise
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    """
+    Get password hash.
+    
+    Args:
+        password: Plain text password
+        
+    Returns:
+        Hashed password
+    """
+    return pwd_context.hash(password)
+
+def create_access_token(
+    data: dict, expires_delta: Optional[timedelta] = None
+) -> str:
+    """
+    Create JWT access token.
+    
+    Args:
+        data: Token payload data
+        expires_delta: Optional expiration time delta
+        
+    Returns:
+        Encoded JWT token
+    """
+    to_encode = data.copy()
+    
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+        
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+    
+    return encoded_jwt
+
+def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
+    """
+    Authenticate user with username and password.
+    
+    Args:
+        db: Database session
+        username: Username
+        password: Plain text password
+        
+    Returns:
+        User if authentication successful, None otherwise
+    """
+    user = users_crud.get_user_by_username(db, username)
+    
+    if not user:
+        return None
+    if not verify_password(password, user.password_hash):
+        return None
+        
+    return user
 ```
-- **Reference**: Section 7.2 of this document
 
-##### Transcription Analysis
+## 8. Comprehensive Data Models
+
+This section defines all database models and schema representations used throughout the application. These models ensure consistent data structures across all components of the system.
+
+### 8.1. Database Models (SQLAlchemy)
+
+#### 8.1.1. User Model
+
 ```python
-# POST /api/v1/transcriptions/analyze
-@router.post("/analyze", response_model=schemas.TranscriptionAnalysis)
-async def analyze_transcription(request: schemas.TranscriptionAnalysisRequest)
+# app/db/models.py
+
+class User(Base):
+    """User database model."""
+    __tablename__ = "users"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    is_premium = Column(Boolean, default=False)
+    subscription_end_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    transcriptions = relationship("TranscriptionSession", back_populates="user")
+    subscriptions = relationship("Subscription", back_populates="user")
 ```
-- **Reference**: Section 7.3 of this document
 
-#### 14.2.6 Data Schemas
+#### 8.1.2. TranscriptionSession Model
 
-##### Video Schemas
 ```python
+# app/db/models.py
+
+class TranscriptionSession(Base):
+    """TranscriptionSession database model."""
+    __tablename__ = "transcription_sessions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    video_id = Column(String, nullable=False)  # YouTube video ID
+    user_transcription = Column(Text, nullable=True)
+    correct_transcription = Column(Text, nullable=True)
+    accuracy_score = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="transcriptions")
+```
+
+#### 8.1.3. Subscription Model
+
+```python
+# app/db/models.py
+
+class Subscription(Base):
+    """Subscription database model."""
+    __tablename__ = "subscriptions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    stripe_subscription_id = Column(String, nullable=False)
+    status = Column(String, nullable=False)  # active, canceled, past_due
+    plan_type = Column(String, nullable=False)  # month, year
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="subscriptions")
+```
+
+#### 8.1.4. Video Model
+
+```python
+# app/db/models.py
+
+class Video(Base):
+    """Video database model for caching YouTube metadata."""
+    __tablename__ = "videos"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    youtube_id = Column(String, unique=True, index=True, nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    thumbnail_url = Column(String, nullable=True)
+    duration = Column(Integer, nullable=True)  # Duration in seconds
+    created_at = Column(DateTime, default=datetime.utcnow)
+```
+
+### 8.2. Schema Models (Pydantic)
+
+The schema models ensure proper data validation and serialization for API requests and responses.
+
+#### 8.2.1. User Schemas
+
+The user schemas defined in section 7.4.1 cover the core user-related data validation needs.
+
+#### 8.2.2. Transcription Schemas
+
+```python
+# app/schemas/transcriptions.py
+
+class TranscriptionBase(BaseModel):
+    """Base schema for transcription data."""
+    video_id: str
+    user_transcription: Optional[str] = None
+    correct_transcription: Optional[str] = None
+
+class TranscriptionCreate(TranscriptionBase):
+    """Schema for creating a transcription."""
+    pass
+
+class TranscriptionSession(TranscriptionBase):
+    """Schema for transcription session response."""
+    id: UUID
+    user_id: UUID
+    accuracy_score: Optional[float] = None
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
+
+class TranscriptionAnalysisRequest(BaseModel):
+    """Schema for transcription analysis request."""
+    user_text: str
+    reference_text: str
+
+class TranscriptionAnalysisItem(BaseModel):
+    """Schema for a single transcription analysis item."""
+    text: str
+    type: str  # correct, mistake, missing, wrong
+
+class TranscriptionAnalysisStats(BaseModel):
+    """Schema for transcription analysis stats."""
+    correct_words: int
+    mistake_words: int
+    missing_words: int
+    wrong_words: int
+    total_words: int
+
+class TranscriptionAnalysis(BaseModel):
+    """Schema for transcription analysis response."""
+    comparison: List[TranscriptionAnalysisItem]
+    overall_accuracy: float
+    stats: TranscriptionAnalysisStats
+```
+
+#### 8.2.3. Subscription Schemas
+
+```python
+# app/schemas/subscriptions.py
+
+class SubscriptionBase(BaseModel):
+    """Base schema for subscription data."""
+    user_id: UUID
+    stripe_subscription_id: str
+    status: str  # active, canceled, past_due
+    plan_type: str  # month, year
+    start_date: datetime
+    end_date: datetime
+
+class SubscriptionCreate(SubscriptionBase):
+    """Schema for creating a subscription."""
+    pass
+
+class Subscription(SubscriptionBase):
+    """Schema for subscription response."""
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        orm_mode = True
+
+class SubscriptionPlanFeature(BaseModel):
+    """Schema for subscription plan feature."""
+    name: str
+    description: Optional[str] = None
+
+class SubscriptionPlan(BaseModel):
+    """Schema for subscription plan."""
+    id: str
+    name: str
+    description: str
+    price: float
+    currency: str = "USD"
+    interval: str  # month, year
+    features: List[str]
+```
+
+#### 8.2.4. Video Schemas
+
+```python
+# app/schemas/videos.py
+
+class VideoBase(BaseModel):
+    """Base schema for video data."""
+    youtube_id: str
+    title: str
+    description: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    duration: Optional[int] = None
+
+class VideoCreate(VideoBase):
+    """Schema for creating a video."""
+    pass
+
+class Video(VideoBase):
+    """Schema for video response."""
+    id: UUID
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
+
 class VideoSearchResult(BaseModel):
     """Schema for YouTube video search results."""
     id: str
@@ -1623,43 +1536,560 @@ class VideoTranscript(BaseModel):
     video_id: str
     transcript: str
     timestamps: List[float]  # Start time for each word
-    debug_info: Optional[List[str]]  # Debug information if debug_mode=True
+    debug_info: Optional[List[str]] = None  # Debug information if debug_mode=True
 ```
-- **Reference**: Section 6.3 of this document
 
-### 14.3 Integration Considerations
+### 8.3. Data Model Relationships
 
-#### 14.3.1 Tech Stack Alignment
-- Frontend: Follows HTML/JS requirements from tech-stack.mdc
-- Backend: Implements Python with FastAPI as specified
-- Database: Uses SQL (PostgreSQL) as required, not JSON file storage
-- Search: Leverages Elasticsearch via elastic.co for both dev and prod environments
+The data models are designed with the following relationships:
 
-#### 14.3.2 Coding Preferences
-- Simple solutions preferred over complex ones
-- Code duplication avoided by reusing components
-- Support for dev/test/prod environments
-- Clean, organized codebase structure
-- File size limits respected (<300 lines)
+1. **User to TranscriptionSession**: One-to-Many
+   - A user can have multiple transcription sessions
+   - Each transcription session belongs to a single user
 
-#### 14.3.3 Workflow Preferences
-- Focus on relevant code areas
-- Thorough tests implemented for all functionality
-- Changes respect existing patterns and architecture
-- Side effects of changes considered
+2. **User to Subscription**: One-to-Many
+   - A user can have multiple subscriptions (historical record)
+   - Each subscription belongs to a single user
 
-### 14.4 Implementation Path
+3. **Video**: Independent entity
+   - Used for caching YouTube video metadata
+   - Referenced by TranscriptionSession via video_id
 
-This classification supports the implementation plan outlined in implementation-plan.md:
+These relationships ensure proper data organization and efficient querying capabilities throughout the application.
 
-1. **Phase 2, Step 3**: Video Search and Playback (Frontend components: YouTube Search, Search Results, Video Player)
-2. **Phase 2, Step 4**: Transcription System (Backend components: Transcript Service, Transcription Correction Logic)
-3. **Phase 3, Step 5**: Testing & Refinement (All components, with emphasis on integration points)
+## 9. Testing Strategy
 
-The classification is aligned with the project directory structure defined in project-directory-and-file-structure.md, particularly:
+This section outlines the comprehensive testing approach for the application, covering all components from frontend to backend, and defining methodologies for unit, integration, and end-to-end testing.
 
-- Frontend: `frontend/src/components/video/` and `frontend/src/components/transcription/`
-- Backend: `backend/app/services/youtube.py` and `backend/app/services/transcription.py`
+### 9.1. Frontend Testing
+
+Frontend testing focuses on component functionality, user interaction flows, and visual consistency.
+
+#### 9.1.1. Unit Testing with Jest and React Testing Library
+
+All React components should be tested using Jest and React Testing Library with the following guidelines:
+
+```javascript
+// Example component test for TranscriptionInput.jsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import TranscriptionInput from '../components/transcription/TranscriptionInput';
+
+describe('TranscriptionInput Component', () => {
+  test('renders textarea with correct placeholder', () => {
+    render(<TranscriptionInput />);
+    const textArea = screen.getByPlaceholderText('Type what you hear...');
+    expect(textArea).toBeInTheDocument();
+  });
+  
+  test('updates character count when typing', async () => {
+    render(<TranscriptionInput />);
+    const textArea = screen.getByPlaceholderText('Type what you hear...');
+    await userEvent.type(textArea, 'Hello, world!');
+    expect(screen.getByText('13 characters')).toBeInTheDocument();
+  });
+  
+  test('calls onSubmit when submit button is clicked', () => {
+    const handleSubmit = jest.fn();
+    render(<TranscriptionInput onSubmit={handleSubmit} />);
+    const submitButton = screen.getByRole('button', { name: /submit transcription/i });
+    fireEvent.click(submitButton);
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+**Test Coverage Requirements:**
+- 80% minimum code coverage for all components
+- 90% minimum coverage for core UI components
+- 100% coverage for utility functions
+
+#### 9.1.2. Integration Testing
+
+Integration tests should verify the proper interaction between connected components:
+
+```javascript
+// Example integration test for transcription workflow
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import TranscriptionPage from '../pages/transcribe/[videoId]';
+import { TranscriptionProvider } from '../contexts/TranscriptionContext';
+
+// Mock API responses
+jest.mock('../services/api', () => ({
+  getVideoTranscript: jest.fn(() => Promise.resolve({
+    transcript: 'Sample reference transcription'
+  })),
+  analyzeTranscription: jest.fn(() => Promise.resolve({
+    comparison: [/* comparison data */],
+    overall_accuracy: 0.85,
+    stats: {
+      correct_words: 8,
+      mistake_words: 1,
+      missing_words: 0,
+      wrong_words: 1,
+      total_words: 10
+    }
+  }))
+}));
+
+describe('Transcription Workflow', () => {
+  test('full transcription workflow from input to results', async () => {
+    render(
+      <TranscriptionProvider>
+        <TranscriptionPage videoId="test123" />
+      </TranscriptionProvider>
+    );
+    
+    // Wait for video player to load
+    await screen.findByTitle('YouTube video player');
+    
+    // Type transcription
+    const textArea = screen.getByPlaceholderText('Type what you hear...');
+    await userEvent.type(textArea, 'Sample user transcription');
+    
+    // Submit transcription
+    const submitButton = screen.getByRole('button', { name: /submit transcription/i });
+    fireEvent.click(submitButton);
+    
+    // Wait for results to appear
+    const results = await screen.findByText('Transcription Results');
+    expect(results).toBeInTheDocument();
+    
+    // Verify accuracy display
+    expect(screen.getByText('85%')).toBeInTheDocument();
+  });
+});
+```
+
+#### 9.1.3. End-to-End Testing with Cypress
+
+End-to-end tests should cover critical user flows from start to finish:
+
+```javascript
+// cypress/integration/transcription_spec.js
+describe('Transcription Feature', () => {
+  beforeEach(() => {
+    // Mock authentication
+    cy.login('testuser', 'password123');
+  });
+  
+  it('allows a user to search for videos and start transcribing', () => {
+    // Visit search page
+    cy.visit('/transcribe');
+    
+    // Search for a video
+    cy.get('[data-testid="search-input"]').type('learn english');
+    cy.get('[data-testid="search-button"]').click();
+    
+    // Wait for search results
+    cy.get('[data-testid="search-results"]').should('be.visible');
+    
+    // Select the first video
+    cy.get('[data-testid="video-card"]').first().click();
+    
+    // Check that we navigate to transcription page
+    cy.url().should('include', '/transcribe/');
+    
+    // Verify video player is present
+    cy.get('iframe[title="YouTube video player"]').should('be.visible');
+    
+    // Verify transcription input is present
+    cy.get('[data-testid="transcription-input"]').should('be.visible');
+  });
+  
+  it('submits transcription and displays results', () => {
+    // Visit a specific video transcription page
+    cy.visit('/transcribe/test123');
+    
+    // Type a transcription
+    cy.get('[data-testid="transcription-input"]')
+      .type('This is a test transcription for cypress');
+    
+    // Submit transcription
+    cy.get('[data-testid="submit-button"]').click();
+    
+    // Verify results appear
+    cy.get('[data-testid="transcription-results"]').should('be.visible');
+    
+    // Click try again
+    cy.get('[data-testid="try-again-button"]').click();
+    
+    // Verify input has previous text
+    cy.get('[data-testid="transcription-input"]')
+      .should('have.value', 'This is a test transcription for cypress');
+  });
+});
+```
+
+**End-to-End Test Scenarios:**
+1. User registration and login flow
+2. Video search and selection
+3. Complete transcription workflow
+4. Subscription purchase flow
+5. User settings management
+
+### 9.2. Backend Testing
+
+Backend testing focuses on API functionality, business logic, and database operations.
+
+#### 9.2.1. Unit Testing with pytest
+
+All backend functions should have unit tests covering normal operation, edge cases, and error handling:
+
+```python
+# tests/test_transcription_service.py
+import pytest
+from unittest.mock import MagicMock, patch
+from app.services.transcription import compare_transcriptions
+
+def test_compare_transcriptions_perfect_match():
+    """Test comparison with perfectly matching transcriptions."""
+    user_text = "this is a test"
+    reference_text = "this is a test"
+    
+    result = compare_transcriptions(user_text, reference_text)
+    
+    assert result == 1.0
+
+def test_compare_transcriptions_partial_match():
+    """Test comparison with partially matching transcriptions."""
+    user_text = "this is a tost"  # Intentional typo
+    reference_text = "this is a test"
+    
+    result = compare_transcriptions(user_text, reference_text)
+    
+    assert 0.7 <= result < 1.0
+
+def test_compare_transcriptions_no_match():
+    """Test comparison with non-matching transcriptions."""
+    user_text = "completely different text"
+    reference_text = "this is a test"
+    
+    result = compare_transcriptions(user_text, reference_text)
+    
+    assert result < 0.5
+
+@patch('app.services.transcription.TranscriptionComparerV4Pro')
+def test_compare_transcriptions_detailed(mock_comparer):
+    """Test detailed comparison with mocked comparer."""
+    # Setup mock comparer
+    mock_instance = MagicMock()
+    mock_instance.compare.return_value = [
+        {'text': 'this', 'type': 'correct'},
+        {'text': 'is', 'type': 'correct'},
+        {'text': 'a', 'type': 'correct'},
+        {'text': 'tost', 'type': 'mistake'}
+    ]
+    mock_comparer.return_value = mock_instance
+    
+    # Call function
+    from app.services.transcription import get_detailed_comparison
+    result = get_detailed_comparison("this is a tost", "this is a test")
+    
+    # Assert
+    assert len(result) == 4
+    assert result[0]['text'] == 'this'
+    assert result[0]['type'] == 'correct'
+    assert result[3]['text'] == 'tost'
+    assert result[3]['type'] == 'mistake'
+```
+
+#### 9.2.2. API Testing with FastAPI TestClient
+
+API endpoints should be tested to ensure they return correct responses and handle errors appropriately:
+
+```python
+# tests/test_transcriptions_api.py
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from app.main import app
+from app.db.models import User, TranscriptionSession
+from app.core.security import create_access_token
+
+client = TestClient(app)
+
+def test_create_transcription(db_session: Session, test_user: User):
+    """Test creating a new transcription session."""
+    # Create access token for test user
+    access_token = create_access_token(data={"sub": str(test_user.id)})
+    
+    # Test data
+    transcription_data = {
+        "video_id": "test123",
+        "user_transcription": "This is a test transcription",
+        "correct_transcription": "This is a test transcription"
+    }
+    
+    # Make request
+    response = client.post(
+        "/api/v1/transcriptions/",
+        json=transcription_data,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert data["video_id"] == "test123"
+    assert data["user_id"] == str(test_user.id)
+    assert data["accuracy_score"] > 0.9  # Should be high for matching text
+    
+    # Verify database entry
+    db_transcription = db_session.query(TranscriptionSession).filter_by(id=data["id"]).first()
+    assert db_transcription is not None
+    assert db_transcription.video_id == "test123"
+```
+
+#### 9.2.3. Integration Testing with Databases
+
+Database operations should be tested using test databases or in-memory SQLite:
+
+```python
+# tests/conftest.py
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from app.db.base import Base
+from app.db.database import get_db
+from app.main import app
+from app.db.models import User
+from app.core.security import get_password_hash
+
+@pytest.fixture(scope="function")
+def test_db():
+    """Create test database."""
+    # Use in-memory SQLite for testing
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    
+    # Dependency override
+    def override_get_db():
+        try:
+            db = TestingSessionLocal()
+            yield db
+        finally:
+            db.close()
+    
+    app.dependency_overrides[get_db] = override_get_db
+    
+    yield TestingSessionLocal
+    
+    # Clean up
+    Base.metadata.drop_all(bind=engine)
+
+@pytest.fixture
+def db_session(test_db):
+    """Get database session."""
+    session = test_db()
+    try:
+        yield session
+    finally:
+        session.close()
+
+@pytest.fixture
+def test_user(db_session):
+    """Create test user."""
+    user = User(
+        email="test@example.com",
+        username="testuser",
+        password_hash=get_password_hash("password123"),
+        is_premium=False
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+```
+
+### 9.3. Performance Testing
+
+Performance testing ensures the application meets response time and throughput requirements.
+
+#### 9.3.1. Load Testing with Locust
+
+```python
+# locustfile.py
+from locust import HttpUser, task, between
+
+class WebsiteUser(HttpUser):
+    wait_time = between(1, 5)
+    
+    def on_start(self):
+        """Log in before tests."""
+        response = self.client.post("/api/v1/auth/login", {
+            "username": "testuser",
+            "password": "password123"
+        })
+        self.token = response.json()["access_token"]
+        self.client.headers = {"Authorization": f"Bearer {self.token}"}
+    
+    @task(1)
+    def index_page(self):
+        """Test homepage."""
+        self.client.get("/")
+    
+    @task(2)
+    def search_videos(self):
+        """Test video search."""
+        self.client.get("/api/v1/videos/search?q=english%20lesson")
+    
+    @task(3)
+    def get_video_transcript(self):
+        """Test transcript retrieval."""
+        self.client.get("/api/v1/videos/test123/transcript")
+    
+    @task(1)
+    def analyze_transcription(self):
+        """Test transcription analysis."""
+        self.client.post("/api/v1/transcriptions/analyze", json={
+            "user_text": "This is a test transcription",
+            "reference_text": "This is a test transcription"
+        })
+```
+
+**Performance Targets:**
+- API response time: < 500ms for 95% of requests
+- Page load time: < 2 seconds
+- Support for 1000+ concurrent users
+
+### 9.4. Security Testing
+
+Security testing safeguards user data and protects against common vulnerabilities.
+
+#### 9.4.1. Authentication Testing
+
+```python
+# tests/test_auth_security.py
+from fastapi.testclient import TestClient
+import pytest
+
+from app.main import app
+
+client = TestClient(app)
+
+def test_access_protected_route_without_token():
+    """Test accessing protected route without token."""
+    response = client.get("/api/v1/users/me")
+    assert response.status_code == 401
+
+def test_access_protected_route_with_invalid_token():
+    """Test accessing protected route with invalid token."""
+    response = client.get(
+        "/api/v1/users/me",
+        headers={"Authorization": "Bearer invalid_token"}
+    )
+    assert response.status_code == 401
+
+def test_password_reset_does_not_leak_email_existence():
+    """Test password reset does not leak if email exists or not."""
+    # Test with non-existent email
+    response = client.post(
+        "/api/v1/auth/reset-password",
+        json={"email": "nonexistent@example.com"}
+    )
+    # Should still return 204 No Content for security
+    assert response.status_code == 204
+```
+
+#### 9.4.2. Rate Limiting Testing
+
+```python
+# tests/test_rate_limiting.py
+from fastapi.testclient import TestClient
+import time
+
+from app.main import app
+
+client = TestClient(app)
+
+def test_login_rate_limiting():
+    """Test rate limiting on login endpoint."""
+    # Send multiple login requests in quick succession
+    for i in range(10):
+        client.post(
+            "/api/v1/auth/login",
+            data={"username": f"test{i}", "password": "wrong_password"}
+        )
+    
+    # Next request should be rate limited
+    response = client.post(
+        "/api/v1/auth/login",
+        data={"username": "test", "password": "password"}
+    )
+    
+    assert response.status_code == 429  # Too Many Requests
+```
+
+### 9.5. Testing Automation
+
+All tests should be integrated into CI/CD pipelines to ensure code quality and prevent regressions.
+
+#### 9.5.1. GitHub Actions Configuration
+
+```yaml
+# .github/workflows/test.yml
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements/dev.txt
+      - name: Run tests
+        run: |
+          cd backend
+          pytest --cov=app --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          file: ./backend/coverage.xml
+  
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      - name: Run tests
+        run: |
+          cd frontend
+          npm test -- --coverage
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          file: ./frontend/coverage/lcov.info
+```
 
 _This document supersedes all prior ad-hoc instructions for the transcription workflow. All future work must comply fully with this specification._ 
 
@@ -1691,3 +2121,424 @@ _This document supersedes all prior ad-hoc instructions for the transcription wo
 - **Elasticsearch Indexes**: Ensure Elasticsearch configurations include separate dev and prod indexes.
 
 All implementation work must adhere to these guidelines in addition to the detailed specifications in previous sections. 
+
+## 10. Deployment Considerations
+
+This section outlines the comprehensive deployment strategy for the application, covering infrastructure, environments, CI/CD pipelines, and monitoring systems.
+
+### 10.1. Environment Configuration
+
+The application supports multiple deployment environments with distinct configurations:
+
+| Environment | Purpose | Database | Features |
+|-------------|---------|----------|----------|
+| Development | Local development | SQLite or PostgreSQL | Debug mode, mock payments |
+| Testing | Automated tests | In-memory SQLite | Test-specific configurations |
+| Staging | Pre-production validation | PostgreSQL | Full features, test data |
+| Production | Live user-facing app | PostgreSQL | Full features, real data |
+
+Each environment uses specific environment variables defined in an `.env` file:
+
+```
+# .env.example
+
+# Core settings
+ENVIRONMENT=development
+DEBUG=True
+SECRET_KEY=your_secret_key
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database settings
+DATABASE_URL=postgresql://user:password@localhost/videotranscribe
+
+# API settings
+API_V1_STR=/api/v1
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# CORS settings
+BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+
+# YouTube API
+YOUTUBE_API_KEY=your_youtube_api_key
+
+# Stripe settings
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+STRIPE_PRICE_ID_MONTHLY=price_monthly_id
+STRIPE_PRICE_ID_YEARLY=price_yearly_id
+
+# Elasticsearch settings
+ELASTICSEARCH_HOST=localhost
+ELASTICSEARCH_PORT=9200
+ELASTICSEARCH_USERNAME=elastic
+ELASTICSEARCH_PASSWORD=changeme
+```
+
+### 10.2. Backend Deployment
+
+#### 10.2.1. Docker Containerization
+
+The backend is containerized using Docker for consistent deployment across environments:
+
+```dockerfile
+# backend/Dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY ./requirements/prod.txt .
+RUN pip install --no-cache-dir -r prod.txt
+
+# Copy application code
+COPY ./app ./app
+COPY ./alembic ./alembic
+COPY ./alembic.ini .
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Expose API port
+EXPOSE 8000
+
+# Run Gunicorn with Uvicorn workers
+CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--workers", "4"]
+```
+
+#### 10.2.2. Database Migration Strategy
+
+Database migrations are managed with Alembic:
+
+```bash
+# Initialize migrations
+alembic init alembic
+
+# Create migration
+alembic revision --autogenerate -m "Initial migration"
+
+# Apply migrations
+alembic upgrade head
+```
+
+Migrations are run automatically during deployment through startup scripts:
+
+```bash
+#!/bin/bash
+# start.sh
+set -e
+
+# Run migrations
+alembic upgrade head
+
+# Start application
+exec gunicorn app.main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --workers 4```
+
+#### 10.2.3. Backend Scaling
+
+The backend can be scaled horizontally using container orchestration:
+
+- Multiple application instances behind a load balancer
+- Separate database service with proper replication
+- Distributed caching layer for session management and rate limiting
+- Asynchronous task processing with Celery for background jobs
+
+### 10.3. Frontend Deployment
+
+#### 10.3.1. Static Asset Building
+
+The frontend is built as a static asset bundle:
+
+```bash
+# Install dependencies
+npm ci
+
+# Build for production with minification
+npm run build
+```
+
+#### 10.3.2. CDN Deployment
+
+The built frontend assets are deployed to a CDN for optimal performance:
+
+1. Static assets are uploaded to a cloud storage bucket (AWS S3, GCP Cloud Storage)
+2. A CDN (CloudFront, Cloud CDN) is configured in front of the storage
+3. Proper caching headers are set to maximize cache hits
+4. The CDN is configured with a custom domain and SSL certificate
+
+#### 10.3.3. Frontend Configuration
+
+Environment-specific configuration is injected at build time:
+
+```javascript
+// frontend/.env.production
+REACT_APP_API_URL=https://api.example.com/api/v1
+REACT_APP_YOUTUBE_API_KEY=your_youtube_api_key
+```
+
+### 10.4. CI/CD Pipeline
+
+#### 10.4.1. Continuous Integration
+
+The CI pipeline runs on every pull request and push to the main branch:
+
+1. Install dependencies
+2. Run linters (ESLint, Flake8)
+3. Run tests (Jest, pytest)
+4. Generate test coverage reports
+5. Build application artifacts
+
+#### 10.4.2. Continuous Deployment
+
+The CD pipeline deploys to different environments based on branch and manual approvals:
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Build and test steps similar to test.yml
+      
+      - name: Build Docker image
+        run: |
+          docker build -t yourusername/videotranscribe:${{ github.sha }} ./backend
+      
+      - name: Push Docker image
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push yourusername/videotranscribe:${{ github.sha }}
+      
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          
+      - name: Upload frontend artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend-build
+          path: frontend/build
+  
+  deploy-staging:
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      # Deploy to staging environment
+      # ... deployment steps ...
+      
+  deploy-production:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval
+    steps:
+      # Deploy to production environment
+      # ... deployment steps ...
+```
+
+### 10.5. Infrastructure as Code
+
+Infrastructure is defined as code using Terraform:
+
+```hcl
+# main.tf
+provider "aws" {
+  region = "us-west-2"
+}
+
+# Database
+resource "aws_db_instance" "postgres" {
+  allocated_storage    = 10
+  engine               = "postgres"
+  engine_version       = "13.4"
+  instance_class       = "db.t3.micro"
+  name                 = "videotranscribe"
+  username             = var.db_username
+  password             = var.db_password
+  parameter_group_name = "default.postgres13"
+  skip_final_snapshot  = true
+}
+
+# Backend ECS service
+resource "aws_ecs_service" "backend" {
+  name            = "backend"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.backend.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+  
+  network_configuration {
+    subnets          = aws_subnet.private.*.id
+    security_groups  = [aws_security_group.backend.id]
+    assign_public_ip = false
+  }
+  
+  load_balancer {
+    target_group_arn = aws_lb_target_group.backend.arn
+    container_name   = "backend"
+    container_port   = 8000
+  }
+}
+
+# Frontend S3 bucket
+resource "aws_s3_bucket" "frontend" {
+  bucket = "videotranscribe-frontend"
+  acl    = "private"
+  
+  website {
+    index_document = "index.html"
+    error_document = "index.html"
+  }
+}
+
+# CloudFront distribution
+resource "aws_cloudfront_distribution" "frontend" {
+  origin {
+    domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
+    origin_id   = "S3-videotranscribe-frontend"
+    
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.frontend.cloudfront_access_identity_path
+    }
+  }
+  
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+  
+  # Additional CloudFront configuration...
+}
+```
+
+### 10.6. Monitoring and Observability
+
+#### 10.6.1. Logging System
+
+Application logs are centralized and structured:
+
+```python
+# app/core/logging.py
+import logging
+import json
+from datetime import datetime
+from typing import Any, Dict
+
+class JSONLogFormatter(logging.Formatter):
+    """Format logs as JSON for better parsing."""
+    
+    def format(self, record: logging.LogRecord) -> str:
+        """Format log record as JSON."""
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+        
+        if hasattr(record, "request_id"):
+            log_data["request_id"] = record.request_id
+            
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+            
+        return json.dumps(log_data)
+```
+
+#### 10.6.2. Metrics Collection
+
+Application metrics are collected for monitoring performance:
+
+```python
+# app/core/metrics.py
+from prometheus_client import Counter, Histogram, Gauge
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+# Define metrics
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total count of HTTP requests",
+    ["method", "endpoint", "status_code"]
+)
+
+REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request latency in seconds",
+    ["method", "endpoint"]
+)
+
+ACTIVE_REQUESTS = Gauge(
+    "http_active_requests",
+    "Number of active HTTP requests",
+    ["method", "endpoint"]
+)
+
+class PrometheusMiddleware(BaseHTTPMiddleware):
+    """Middleware to collect Prometheus metrics."""
+    
+    async def dispatch(self, request: Request, call_next):
+        """Process request and collect metrics."""
+        method = request.method
+        path = request.url.path
+        
+        # Track active requests
+        ACTIVE_REQUESTS.labels(method=method, endpoint=path).inc()
+        
+        # Time the request
+        with REQUEST_LATENCY.labels(method=method, endpoint=path).time():
+            response = await call_next(request)
+        
+        # Decrement active requests
+        ACTIVE_REQUESTS.labels(method=method, endpoint=path).dec()
+        
+        # Count requests
+        REQUEST_COUNT.labels(
+            method=method,
+            endpoint=path,
+            status_code=response.status_code
+        ).inc()
+        
+        return response
+
+def get_metrics():
+    """Get Prometheus metrics."""
+    from prometheus_client import generate_latest
+    return generate_latest()
+```
+
+### 10.7. Backup and Recovery Strategy
+
+To ensure data durability and disaster recovery capabilities:
+
+1. **Database Backups**:
+   - Automated daily snapshots of production database
+   - Transaction log backups every 15 minutes
+   - Monthly full backup stored in cold storage
+   - Regular restore testing of backups
+
+2. **Application State**:
+   - Stateless application design with persistent state in database
+   - Infrastructure as code ensures quick recovery of application components
+   - Multi-region backup strategy for critical data
+
+3. **Disaster Recovery**:
+   - Recovery Time Objective (RTO): < 1 hour
+   - Recovery Point Objective (RPO): < 15 minutes
+   - Documented recovery procedures and regular drills
+
+// ... existing code continues ...
