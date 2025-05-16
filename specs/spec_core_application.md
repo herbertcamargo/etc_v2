@@ -6,25 +6,42 @@ This document defines the comprehensive requirements and implementation details 
 
 ---
 
-## 1.1. Specification Source Traceability
+### 1.1. Specification Source Traceability
 
-
+This specification integrates requirements from the following source documents:
+- `application-design.md`: Core architecture and data models
+- `application-requirements.md`: Functional and non-functional requirements
+- `frontend-update.md`: UI/UX design principles and component specifications
+- `implementation-plan.md`: Phased development approach and deployment strategy
+- `project-directory-and-file-structure.md`: Code organization and file structure
 
 ---
 
-## 1.2. Integration of Detailed Requirements from Source Specifications
+### 1.2. Integration of Detailed Requirements from Source Specifications
 
 This section contains the full integration of all implementation details, code snippets, and requirements from multiple source specifications, ensuring no detail is omitted.
 
----
+#### 1.2.1. Implementation Phases Mapping
 
-## Advanced Transcription Correction Logic Specification
+The implementation of the transcription application follows a phased approach as outlined in `implementation-plan.md`:
 
-### Core Components, Algorithm, and Implementation
-
-- Full Word model, TranscriptionComparerV4Pro, are_equivalent, compare, realign_with_dubles, generate_dubles, are_dubles_equivalent, fill_field_gaps, is_mistake, and all helper functions.
-- Full backend API integration example for /transcriptions/analyze endpoint.
-- All performance, testing, and enhancement notes.
+- **Phase 1: Foundation**
+  - Backend setup with FastAPI
+  - Database models implementation
+  - Authentication system with JWT
+  - Basic frontend structure with React
+- **Phase 2: Core Features**
+  - YouTube video search and playback integration
+  - Transcription input system and comparison algorithm
+  - User dashboard and progress tracking
+- **Phase 3: Subscription & Polish**
+  - Stripe integration for payment processing
+  - Subscription management
+  - UI/UX refinements
+- **Phase 4: Deployment & Launch**
+  - Production environment configuration
+  - Monitoring and alerting setup
+  - Final QA and performance optimization
 
 ---
 
@@ -69,15 +86,13 @@ src/
 
 ### 3.2. Key Components
 
-#### YouTube Search Bar
-
+#### 3.2.1. YouTube Search Bar
 - Large input box with floating label.
 - Primary gradient "Search" button.
 - Keyboard accessible (focus, enter key triggers search).
 - Styled as per design tokens.
 
-#### Search Results
-
+#### 3.2.2. Search Results
 - Display top 12 YouTube video results in a 4x3 responsive grid.
 - Each result card includes:
   - Thumbnail (with alt text)
@@ -90,55 +105,34 @@ src/
   - If not authenticated, display a warning message: "Login before starting transcribing"
   - This validation must occur before triggering any API calls or resource loading
 
-#### Video Player
-
+#### 3.2.3. Video Player
 - Responsive embedded YouTube iframe.
 - Error messaging for unsupported videos.
 - Anchor page scroll to this section on load/reload.
 
-#### Transcription Input
-
+#### 3.2.4. Transcription Input
 - Multi-line textarea with floating label.
 - Live character/word count.
 - Auto-save draft support (local/session storage).
 - Clear error and disabled states.
-- **After clicking "Try Again", the input field must be prefilled with the user's previous attempt rather than being cleared.**  
-  This ensures the user can efficiently revise or retry their last attempt without retyping, supporting a smoother workflow and better learning experience.
+- **After clicking "Try Again", the input field must be prefilled with the user's previous attempt rather than being cleared.**
 
-#### Button Set
-
+#### 3.2.5. Button Set
 - Horizontal arrangement of action buttons.
 - Each button must follow the exact behavior and state transitions as specified in the Button Behavior section.
 - Consistent spacing and color feedback for all states.
 
-##### Tooltips for Button Clarification
-- **Pause Delay Dropdown:**
-  - Tooltip: "Sets how long the video remains paused after you stop typing"
-  - Appears on hover/focus of the dropdown
-  
-- **Rewind Time Dropdown:**
-  - Tooltip: "Controls how far back the video rewinds after pausing"
-  - Appears on hover/focus of the dropdown
-  
-- **Rewind Button:**
-  - Tooltip: "Rewinds the video by the selected time amount"
-  - Appears on hover/focus of the button
-  
-- **Play/Stop Button:**
-  - Tooltip: "Play or pause the video playback"
-  - Text changes based on current state
-  - Appears on hover/focus of the button
-  
-- **Submit Transcription Button:**
-  - Tooltip: "Compare your transcription with the original"
-  - Changes to "Keep trying from where you stopped" when showing results
-  - Appears on hover/focus of the button
+##### 3.2.5.1. Tooltips for Button Clarification
+- **Pause Delay Dropdown:** Tooltip: "Sets how long the video remains paused after you stop typing"
+- **Rewind Time Dropdown:** Tooltip: "Controls how far back the video rewinds after pausing"
+- **Rewind Button:** Tooltip: "Rewinds the video by the selected time amount"
+- **Play/Stop Button:** Tooltip: "Play or pause the video playback"
+- **Submit Transcription Button:** Tooltip: "Compare your transcription with the original"
 
-#### Results Output
-
+#### 3.2.6. Results Output
 - Results box with the title "Transcription Results"
 
-##### Animated Transitions for New Results
+##### 3.2.6.1. Animated Transitions for New Results
 - Fade-in transition (300ms) when new results are displayed
 - Subtle highlight effect on newly displayed results
 - Smooth scroll to results section when new comparison is generated
@@ -150,12 +144,11 @@ src/
 ## 4. Video Player Buttons & Behavior
 
 ### 4.1. Pause Delay Dropdown
-
 - **Label**: `"Pause Delay"`
 - **Options**: `0`, `1`, `2`, `3`, `5` (seconds)
 - **Default**: `2` seconds or the last user selection
 
-#### Behavior
+#### 4.1.1. Behavior
 - If the selected value is **not `0`**:
   - When the user **types or deletes** inside the transcription input (`#user-try`):
     - Start or **restart** a countdown for the selected seconds
@@ -166,12 +159,11 @@ src/
   - The countdown was already **active**
 
 ### 4.2. Rewind Time Dropdown
-
 - **Label**: `"Rewind time"`
 - **Options**: `0.0`, `0.25`, `0.5`, `0.75`, `1`, `2`, `3`, `5` (seconds)
 - **Default**: `2` seconds or the last user selection
 
-#### Behavior
+#### 4.2.1. Behavior
 - This dropdown serves **two purposes**:
   1. Referenced by the `Rewind_Button`
   2. Works **with `Pause_Delay_Dropdown`**:
@@ -181,12 +173,10 @@ src/
          - Then **continue playing**
 
 ### 4.3. Rewind Button
-
 - **Label**: `"Rewind"` (centered)
 - **Action**: On click, rewinds the video by the currently selected `Rewind_time_Dropdown` value
 
 ### 4.4. Play/Stop Button
-
 - **State 1** (video is playing):
   - Text: `"Stop"`
   - Color: **dark red**
@@ -196,13 +186,12 @@ src/
   - Color: **dark green**
   - Text color: **white**
 
-#### Behavior
+#### 4.4.1. Behavior
 - On click: toggle video state
   - If playing → pause
   - If paused → play
 
 ### 4.5. Submit Transcription Button
-
 - **State 1** (transcription comparison results are not shown):
   - Text: `"Submit Transcription"`
   - Color: **dark yellow**
@@ -212,7 +201,7 @@ src/
   - Color: **dark amber**
   - Text color: **white**
 
-#### Behavior
+#### 4.5.1. Behavior
 - On click: activate the backend steps to generate the transcription comparison results
   - If transcription comparison results are not yet shown → show transcription comparison results
   - If transcription comparison results are being shown → stop showing the transcription comparison results
@@ -220,12 +209,6 @@ src/
 ---
 
 ## 5. Frontend Logic & State Management
-
-- Use React Context API for global state (selected video, search results, user progress, etc.).
-- Local state for form inputs and transient UI.
-- Ensure all actions provide loading and error feedback.
-- Debounce YouTube search requests to minimize API calls.
-- **Store the user's transcription attempt in state when submitting for results, and restore this value into the input field when "Try Again" is pressed.**
 
 ### 5.1. Loading and Error Feedback
 
@@ -305,7 +288,7 @@ The transcription input component must implement reliable auto-save functionalit
 
 #### 6.1.1. Core Components
 
-##### YouTube API Client
+##### 6.1.1.1. YouTube API Client
 
 A service class that interacts with the YouTube Data API v3 for searching videos and retrieving video metadata.
 
@@ -339,7 +322,7 @@ class YouTubeClient:
         """
 ```
 
-##### Transcript Service
+##### 6.1.1.2. Transcript Service
 
 A service responsible for extracting and processing transcripts from YouTube videos.
 
@@ -375,7 +358,7 @@ class TranscriptService:
         """
 ```
 
-##### Transcript Debugger
+##### 6.1.1.3. Transcript Debugger
 
 ```python
 class TranscriptDebugger:
@@ -421,7 +404,7 @@ The transcript retrieval implementation follows a multi-layered approach:
 3. **Multi-language Attempt**: Try retrieving transcript in multiple languages (`['', 'en', 'en-US', 'pt', 'pt-BR', 'es']`)
 4. **Fallback Messages**: If all attempts fail, return "No closed captions found. Please contact support or try a different video."
 
-##### Sound Filtering
+##### 6.1.2.1. Sound Filtering
 
 Transcripts are processed to filter out sound indications like `[music]`, `[applause]`, etc., replacing them with line breaks for better readability.
 
@@ -589,7 +572,7 @@ The transcription correction system will include functionality to track and anal
    - Implement analysis services that process historical data to identify patterns
    - Create recommendation algorithms based on identified weaknesses
 
-### 6.3.2.2. Realignment and Helper Functions
+### 6.3.7. Realignment and Helper Functions
 
 ```python
 def realign_with_dubles(self, user_words, user_start_idx, actual_words, actual_start_idx, result, matched_once):
@@ -674,7 +657,7 @@ def is_mistake(self, user_norm: str, actual_norm: str) -> bool:
     return ratio >= self.mistake_threshold
 ```
 
-### 6.3.2.3. Main Comparison Function
+### 6.3.8. Main Comparison Function
 
 ```python
 def compare(self, user_words: List[Word], actual_words: List[Word]) -> List[Dict[str, str]]:
@@ -748,7 +731,7 @@ def compare(self, user_words: List[Word], actual_words: List[Word]) -> List[Dict
     return result
 ```
 
-### 6.3.2.4. Required Dependencies
+### 6.3.9. Required Dependencies
 
 ```python
 from typing import List, Dict, Optional, Tuple
@@ -756,7 +739,7 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 ```
 
-### 6.3.7. Performance Considerations for Transcription Correction
+### 6.3.10. Performance Considerations for Transcription Correction
 
 1. **Time Complexity**: The algorithm has O(n*m) worst-case time complexity where n is user word count and m is reference word count. The windowing approach keeps performance reasonable for most transcriptions.
 
@@ -767,128 +750,6 @@ from difflib import SequenceMatcher
    - Early termination of searches when matches are found
    - Caching of normalized forms and comparison results
 
-
-## 5. Frontend Logic & State Management
-
-### 5.2. Auto-save Draft Implementation Details
-
-The transcription input component's auto-save functionality will follow these precise rules:
-
-1. **Save Timing**:
-   - Initial auto-save occurs 5 seconds after the user starts typing
-   - Subsequent saves happen every 5 seconds while typing is ongoing
-   - Final save happens when typing stops for more than 5 seconds
-   - Immediate save occurs on:
-     - Page navigation attempts
-     - Tab/browser close attempts
-     - Before form submission
-
-2. **Storage Key Format**: `transcription_draft_{videoId}`
-
-3. **Draft Restoration UX**:
-   - When a draft is detected, show a notification banner at the top of the input component
-   - Banner text: "You have a saved draft for this video. Would you like to restore it?"
-   - Provide "Restore" and "Discard" buttons
-   - Apply subtle highlight animation to the banner to draw attention
-
-4. **Edge Cases**:
-   - If localStorage is full, attempt to use sessionStorage
-   - If both fail, display a warning to the user
-   - Set a reasonable max size limit for draft storage (50KB)
-   - Implement garbage collection to remove drafts older than 7 days
-
-## 3. UI/UX Design and Accessibility
-
-### 3.2. Key Components
-
-#### Button Tooltips Implementation
-
-All tooltips must follow these implementation details:
-
-1. **Visual Styling**:
-   - Light background (#f8f9fa) with dark text (#212529)
-   - 1px border with color #dee2e6
-   - 4px border radius
-   - Small drop shadow (0 2px 4px rgba(0,0,0,0.1))
-   - Maximum width of 200px with text-wrapping
-   
-2. **Behavior**:
-   - Appear 300ms after hover/focus
-   - Disappear immediately on hover/focus loss
-   - Position 8px above or below the target element (preferred above)
-   - Remain visible when user moves from element to tooltip
-   - Disappear after 5 seconds if no interaction
-
-3. **Content**:
-   - **Pause Delay Dropdown**: "Sets how long the video remains paused after you stop typing"
-   - **Rewind Time Dropdown**: "Controls how far back the video rewinds after pausing"
-   - **Rewind Button**: "Rewinds the video by the selected time amount"
-   - **Play/Stop Button**: "Play or pause the video playback" (changes based on current state)
-   - **Submit Transcription Button**: "Compare your transcription with the original" (changes to "Keep trying from where you stopped" when showing results)
-
-4. **Accessibility**:
-   - Use `aria-describedby` to associate tooltip with target element
-   - Ensure tooltips are readable by screen readers
-   - Support keyboard-only access
-   - Respect "reduce-motion" user preference
-
-#### Animated Transitions for Results Output
-
-The results output component must implement these animation details:
-
-1. **Fade-in Effect**:
-   - Duration: 300ms
-   - Timing function: ease-in-out
-   - Starting opacity: 0
-   - Ending opacity: 1
-   
-2. **Highlight Effect**:
-   - Subtle background color transition
-   - From: rgba(255, 255, 200, 0.3)
-   - To: transparent
-   - Duration: 1200ms
-   - Delay: 300ms (after fade-in completes)
-   
-3. **Scroll Behavior**:
-   - Smooth scroll to results section when new comparison is generated
-   - Offset: 60px from top of viewport (to account for fixed headers)
-   - Duration: 500ms
-   - Timing function: ease-in-out
-   
-4. **Accessibility Considerations**:
-   - Disable all animations if user has set "prefers-reduced-motion: reduce"
-   - Include appropriate ARIA live region attributes:
-     - `aria-live="polite"`
-     - `aria-atomic="true"`
-   - Announce meaningful changes to screen readers
-
-5. **Implementation Example**:
-   ```css
-   @keyframes highlightFade {
-     0% { background-color: rgba(255, 255, 200, 0.3); }
-     100% { background-color: transparent; }
-   }
-   
-   .results-container {
-     opacity: 0;
-     transition: opacity 300ms ease-in-out;
-   }
-   
-   .results-container.visible {
-     opacity: 1;
-     animation: highlightFade 1200ms ease-in-out 300ms;
-   }
-   
-   @media (prefers-reduced-motion: reduce) {
-     .results-container {
-       transition: none;
-     }
-     .results-container.visible {
-       opacity: 1;
-       animation: none;
-     }
-   }
-   ```
 
 ## 7. API Endpoints
 
@@ -935,60 +796,67 @@ async def get_video_transcript(
     """
 ```
 
-### 7.3. Transcription Analysis
+### 7.3. Trending Videos
 
 ```python
-# POST /api/v1/transcriptions/analyze
-@router.post("/analyze", response_model=schemas.TranscriptionAnalysis)
-async def analyze_transcription(
-    request: schemas.TranscriptionAnalysisRequest,
-    current_user: User = Depends(get_current_user),
+# GET /api/v1/videos/trending
+@router.get("/trending", response_model=List[schemas.VideoSearchResult])
+async def get_trending_videos(
+    category: Optional[str] = None,
+    limit: int = Query(10, ge=1, le=50),
+    current_user: models.User = Depends(deps.get_current_user)
 ):
     """
-    Analyze and compare user transcription against reference.
+    Get trending YouTube videos, optionally filtered by category.
+    
+    Args:
+        category: Optional category to filter trending videos
+        limit: Maximum number of results to return (default: 10)
+        current_user: Current authenticated user
+        
+    Returns:
+        List of trending video results
     """
-    # Create Word objects with normalized text
-    user_words = []
-    for idx, word in enumerate(request.user_text.split()):
-        user_words.append(Word(
-            text=word,
-            timestamp=idx,  # Placeholder timestamp (could be refined with actual timestamps)
-            normalized=preprocess_text(word)
-        ))
-    
-    reference_words = []
-    for idx, word in enumerate(request.reference_text.split()):
-        reference_words.append(Word(
-            text=word,
-            timestamp=idx,
-            normalized=preprocess_text(word)
-        ))
-    
-    # Instantiate comparer and get results
-    comparer = TranscriptionComparerV4Pro()
-    comparison_result = comparer.compare(user_words, reference_words)
-    
-    # Calculate overall statistics
-    total_words = len(reference_words)
-    correct_words = sum(1 for item in comparison_result if item['type'] == 'correct')
-    mistake_words = sum(1 for item in comparison_result if item['type'] == 'mistake')
-    missing_words = sum(1 for item in comparison_result if item['type'] == 'missing')
-    wrong_words = sum(1 for item in comparison_result if item['type'] == 'wrong')
-    
-    # Calculate accuracy score
-    accuracy_score = (correct_words + (mistake_words * 0.5)) / total_words if total_words > 0 else 0.0
-    
-    return {
-        "comparison": comparison_result,
-        "overall_accuracy": accuracy_score,
-        "stats": {
-            "correct_words": correct_words,
-            "mistake_words": mistake_words,
-            "missing_words": missing_words,
-            "wrong_words": wrong_words,
-            "total_words": total_words
+    try:
+        youtube_client = get_youtube_client()
+        
+        # Get regionCode from user settings or default to US
+        region_code = getattr(current_user, "region_code", "US")
+        
+        # Construct parameters for trending videos request
+        trending_params = {
+            "chart": "mostPopular",
+            "regionCode": region_code,
+            "maxResults": limit,
+            "part": "snippet,contentDetails,statistics"
         }
-    }
+        
+        # Add category filter if provided
+        if category:
+            trending_params["videoCategoryId"] = category
+            
+        # Execute request
+        trending_results = await youtube_client.list_videos(**trending_params)
+        
+        # Transform API response to our schema
+        results = []
+        for item in trending_results.get("items", []):
+            snippet = item.get("snippet", {})
+            results.append({
+                "id": item.get("id"),
+                "title": snippet.get("title"),
+                "thumbnail": snippet.get("thumbnails", {}).get("medium", {}).get("url"),
+                "channel": snippet.get("channelTitle"),
+                "published_at": snippet.get("publishedAt")
+            })
+            
+        return results
+    except Exception as e:
+        logger.error(f"Error fetching trending videos: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch trending videos"
+        )
 ```
 
 ### 7.4. Authentication System
@@ -2093,35 +1961,6 @@ jobs:
 
 _This document supersedes all prior ad-hoc instructions for the transcription workflow. All future work must comply fully with this specification._ 
 
-## 15. Additional Implementation Guidelines
-
-### 15.1. Code Documentation and Organization
-
-- **Module Documentation**: For any code module created, include complete documentation of the requirements this module fulfills in comments at the top of the file.
-- **File Size Limits**: Strictly maintain files under 200-300 lines of code. Refactor when approaching these limits.
-- **Scripting Practices**: Avoid writing scripts in files whenever possible, especially if the script is likely to be run only once.
-- **Environment Variables**: NEVER overwrite any .env file without first asking and confirming with the project owner.
-
-### 15.2. Change Management
-
-- **Changelog Updates**: All changes implemented must be documented in `progress-tracking/CHANGELOG.md`.
-- **Implementation Scope**: DO NOT touch code that is unrelated to the task at hand.
-- **Technology Introduction**: When fixing an issue or bug, DO NOT introduce a new pattern or technology without first exhausting all other options for the existing implementation. If a new pattern must be introduced, REMOVE the old implementation to avoid duplicate logic.
-
-### 15.3. Testing Requirements
-
-- **Test Framework**: Implement Pytest with mocked data for all backend components.
-- **Test Coverage**: Ensure tests cover all requirements specified in the application.
-- **Mocking Data**: Mocking data is ONLY permitted for tests, NEVER for dev or prod environments.
-- **Stubbing Practices**: Never add stubbing or fake data patterns to code that affects the dev or prod environments.
-
-### 15.4. Environment Considerations
-
-- **Environment Awareness**: All code must take into account the different environments: dev, test, and prod.
-- **Elasticsearch Indexes**: Ensure Elasticsearch configurations include separate dev and prod indexes.
-
-All implementation work must adhere to these guidelines in addition to the detailed specifications in previous sections. 
-
 ## 10. Deployment Considerations
 
 This section outlines the comprehensive deployment strategy for the application, covering infrastructure, environments, CI/CD pipelines, and monitoring systems.
@@ -2541,4 +2380,2483 @@ To ensure data durability and disaster recovery capabilities:
    - Recovery Point Objective (RPO): < 15 minutes
    - Documented recovery procedures and regular drills
 
-// ... existing code continues ...
+## 11. Theme System Implementation
+
+### 11.1. Dark/Light Mode Toggle Functionality
+
+The application implements a comprehensive theme system supporting both dark and light modes, with seamless transitions between them. This implementation follows the design principles outlined in `frontend-update.md`.
+
+#### 11.1.1. Theme Context
+
+```javascript
+// src/contexts/ThemeContext.js
+import React, { createContext, useState, useEffect } from 'react';
+
+// Create theme context with default values
+export const ThemeContext = createContext({
+  theme: 'light',
+  toggleTheme: () => {},
+  isThemeLoaded: false
+});
+
+export const ThemeProvider = ({ children }) => {
+  // Initialize theme from localStorage or system preference
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme;
+    } else {
+      // Check for system preference
+      return window.matchMedia('(prefers-color-scheme: dark)').matches 
+        ? 'dark' 
+        : 'light';
+    }
+  });
+  
+  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
+  
+  // Apply theme to document when it changes
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+      document.documentElement.classList.remove('light-theme');
+    } else {
+      document.documentElement.classList.add('light-theme');
+      document.documentElement.classList.remove('dark-theme');
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('theme', theme);
+    
+    // Set data attribute for CSS selectors
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    // Mark theme as loaded
+    setIsThemeLoaded(true);
+  }, [theme]);
+  
+  // Listen for system preference changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+  
+  // Toggle between light and dark
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  };
+  
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, isThemeLoaded }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+```
+
+#### 11.1.2. Theme Hook
+
+```javascript
+// src/hooks/useTheme.js
+import { useContext } from 'react';
+import { ThemeContext } from '../contexts/ThemeContext';
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  
+  return context;
+};
+```
+
+#### 11.1.3. Theme Toggle Component
+
+```javascript
+// src/components/common/ThemeToggle.jsx
+import React from 'react';
+import { useTheme } from '../../hooks/useTheme';
+import { MoonIcon, SunIcon } from '../icons';
+
+const ThemeToggle = () => {
+  const { theme, toggleTheme } = useTheme();
+  
+  return (
+    <button 
+      className="theme-toggle-btn"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+    >
+      {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+      <span className="sr-only">
+        {theme === 'light' ? 'Dark mode' : 'Light mode'}
+      </span>
+    </button>
+  );
+};
+
+export default ThemeToggle;
+```
+
+#### 11.1.4. CSS Implementation
+
+```css
+/* src/styles/themes.css */
+:root {
+  /* Common variables regardless of theme */
+  --transition-speed: 0.3s;
+}
+
+/* Light theme (default) */
+:root,
+[data-theme="light"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-tertiary: #F1F5F9;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #64748B;
+  
+  --accent-primary: #3B82F6;
+  --accent-secondary: #A855F7;
+  
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #0EA5E9;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-tertiary: #334155;
+  
+  --text-primary: #F8FAFC;
+  --text-secondary: #E2E8F0;
+  --text-tertiary: #CBD5E1;
+  
+  --accent-primary: #60A5FA;
+  --accent-secondary: #C084FC;
+  
+  --success: #34D399;
+  --warning: #FBBF24;
+  --error: #F87171;
+  --info: #38BDF8;
+}
+
+/* Theme transition */
+body {
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Prevent transitions on theme load to avoid flash */
+.theme-transition-ready * {
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease,
+              border-color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease;
+}
+```
+
+## 12. Compliance Requirements
+
+### 12.1. GDPR and CCPA Compliance Measures
+
+The application implements comprehensive data privacy measures to ensure compliance with the General Data Protection Regulation (GDPR) and California Consumer Privacy Act (CCPA).
+
+#### 12.1.1. User Data Handling Policies
+
+1. **Data Minimization**: Only collect data necessary for the functioning of the application:
+   - User authentication information
+   - Subscription and payment details
+   - Transcription history and statistics
+
+2. **Explicit Consent**: Obtain user consent before data collection:
+   ```python
+   # app/api/routes/auth.py
+   @router.post("/register", response_model=schemas.UserResponse)
+   async def register_user(
+       user: schemas.UserCreate,
+       accepted_terms: bool = Body(...),
+       db: Session = Depends(get_db)
+   ):
+       """Register a new user with explicit consent."""
+       if not accepted_terms:
+           raise HTTPException(
+               status_code=status.HTTP_400_BAD_REQUEST,
+               detail="Terms and conditions must be accepted"
+           )
+       
+       # Continue with user registration
+   ```
+
+3. **Right to Access**: Provide users with access to their stored data:
+   ```python
+   # app/api/routes/users.py
+   @router.get("/me/data", response_model=schemas.UserDataExport)
+   async def export_user_data(
+       current_user: models.User = Depends(get_current_user),
+       db: Session = Depends(get_db)
+   ):
+       """
+       Export all data associated with the current user.
+       Complies with GDPR Article 15 (Right of access by the data subject).
+       """
+       # Collect user data
+       user_data = {
+           "user_info": {
+               "id": str(current_user.id),
+               "username": current_user.username,
+               "email": current_user.email,
+               "created_at": current_user.created_at.isoformat(),
+           },
+           "transcriptions": [],
+           "subscription_history": []
+       }
+       
+       # Get transcription history
+       transcriptions = db.query(models.TranscriptionSession).filter(
+           models.TranscriptionSession.user_id == current_user.id
+       ).all()
+       
+       for transcription in transcriptions:
+           user_data["transcriptions"].append({
+               "id": str(transcription.id),
+               "video_id": transcription.video_id,
+               "created_at": transcription.created_at.isoformat(),
+               "accuracy_score": transcription.accuracy_score
+           })
+       
+       # Get subscription history
+       subscriptions = db.query(models.Subscription).filter(
+           models.Subscription.user_id == current_user.id
+       ).all()
+       
+       for subscription in subscriptions:
+           user_data["subscription_history"].append({
+               "id": str(subscription.id),
+               "status": subscription.status,
+               "plan_type": subscription.plan_type,
+               "start_date": subscription.start_date.isoformat(),
+               "end_date": subscription.end_date.isoformat()
+           })
+       
+       return user_data
+   ```
+
+4. **Right to Erasure**: Allow users to delete their accounts and data:
+   ```python
+   # app/api/routes/users.py
+   @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+   async def delete_account(
+       current_user: models.User = Depends(get_current_user),
+       db: Session = Depends(get_db)
+   ):
+       """
+       Delete user account and all associated data.
+       Complies with GDPR Article 17 (Right to erasure).
+       """
+       # Cancel active subscriptions
+       active_subs = db.query(models.Subscription).filter(
+           models.Subscription.user_id == current_user.id,
+           models.Subscription.status == "active"
+       ).all()
+       
+       for sub in active_subs:
+           # Cancel subscription in Stripe
+           stripe.Subscription.delete(sub.stripe_subscription_id)
+           sub.status = "canceled"
+       
+       # Delete transcription sessions
+       db.query(models.TranscriptionSession).filter(
+           models.TranscriptionSession.user_id == current_user.id
+       ).delete()
+       
+       # Delete user
+       db.delete(current_user)
+       db.commit()
+       
+       return None
+   ```
+
+5. **Data Breach Notification**: Implement procedures for detecting and responding to data breaches:
+   ```python
+   # app/core/security.py
+   async def log_security_event(
+       db: Session, 
+       event_type: str, 
+       severity: str,
+       description: str,
+       user_id: Optional[UUID] = None,
+       ip_address: Optional[str] = None
+   ):
+       """Log security events for audit and breach detection."""
+       security_log = models.SecurityLog(
+           event_type=event_type,
+           severity=severity,
+           description=description,
+           user_id=user_id,
+           ip_address=ip_address
+       )
+       db.add(security_log)
+       db.commit()
+       
+       # If high severity, trigger alerts
+       if severity == "critical":
+           await send_security_alert(security_log)
+   ```
+
+#### 12.1.2. Privacy Policy and Terms of Service
+
+The application must include comprehensive and accessible privacy and terms documents:
+
+1. Frontend routes:
+   - `/privacy-policy` - Detailed privacy policy page
+   - `/terms-of-service` - Terms and conditions page
+
+2. Required content sections:
+   - Data collection practices
+   - Data usage and sharing policies
+   - User rights (access, delete, modify)
+   - Cookie policies
+   - Third-party data processors
+   - Contact information for privacy concerns
+   - California-specific privacy rights
+
+#### 12.1.3. Cookie Consent Component
+
+```javascript
+// src/components/common/CookieConsent.jsx
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+const CookieConsent = () => {
+  const [showBanner, setShowBanner] = useState(false);
+  
+  useEffect(() => {
+    // Check if user has already consented
+    const hasConsented = localStorage.getItem('cookie_consent');
+    if (!hasConsented) {
+      setShowBanner(true);
+    }
+  }, []);
+  
+  const acceptAll = () => {
+    localStorage.setItem('cookie_consent', 'all');
+    setShowBanner(false);
+    // Enable all cookies and tracking
+    window.enableAllCookies();
+  };
+  
+  const acceptEssential = () => {
+    localStorage.setItem('cookie_consent', 'essential');
+    setShowBanner(false);
+    // Only enable essential cookies
+    window.enableEssentialCookies();
+  };
+  
+  if (!showBanner) return null;
+  
+  return (
+    <div className="cookie-consent-banner" role="alert" aria-live="polite">
+      <div className="cookie-content">
+        <h2>Cookie Policy</h2>
+        <p>
+          We use cookies to enhance your experience on our website. By continuing
+          to browse, you agree to our use of cookies. You can change your cookie
+          preferences at any time in your account settings.
+        </p>
+        <p>
+          Read our <Link to="/privacy-policy">Privacy Policy</Link> for more information.
+        </p>
+      </div>
+      <div className="cookie-actions">
+        <button 
+          onClick={acceptEssential}
+          className="btn btn-outline"
+        >
+          Essential Only
+        </button>
+        <button 
+          onClick={acceptAll}
+          className="btn btn-primary"
+        >
+          Accept All
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CookieConsent;
+```
+
+// ... existing code ...
+
+## 13. UI Layout System and Grid Specifications
+
+### 13.1. Responsive Grid System
+
+The application implements a comprehensive grid system that provides consistent layouts across all screen sizes, following the specifications in `frontend-update.md`.
+
+#### 13.1.1. Grid System Implementation
+
+```css
+/* src/styles/grid.css */
+:root {
+  /* Grid variables */
+  --grid-columns: 12;
+  --grid-gutter-desktop: 64px;
+  --grid-gutter-tablet: 32px;
+  --grid-gutter-mobile: 24px;
+  --container-max-width: 1280px;
+  --container-padding: 24px;
+}
+
+/* Container - centered, with max width */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* Container fluid - full width */
+.container-fluid {
+  width: 100%;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* Row - flexbox row */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(-1 * var(--grid-gutter-mobile) / 2);
+  margin-right: calc(-1 * var(--grid-gutter-mobile) / 2);
+}
+
+/* Columns - responsive widths */
+[class^="col-"] {
+  position: relative;
+  width: 100%;
+  padding-left: calc(var(--grid-gutter-mobile) / 2);
+  padding-right: calc(var(--grid-gutter-mobile) / 2);
+}
+
+/* Mobile first columns (default) */
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+}
+
+/* Generate column classes for mobile (default) */
+.col-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+.col-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+.col-3 { flex: 0 0 25%; max-width: 25%; }
+.col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+.col-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+.col-6 { flex: 0 0 50%; max-width: 50%; }
+.col-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+.col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+.col-9 { flex: 0 0 75%; max-width: 75%; }
+.col-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+.col-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+.col-12 { flex: 0 0 100%; max-width: 100%; }
+
+/* Tablet breakpoint (md) */
+@media (min-width: 768px) {
+  .row {
+    margin-left: calc(-1 * var(--grid-gutter-tablet) / 2);
+    margin-right: calc(-1 * var(--grid-gutter-tablet) / 2);
+  }
+  
+  [class^="col-"] {
+    padding-left: calc(var(--grid-gutter-tablet) / 2);
+    padding-right: calc(var(--grid-gutter-tablet) / 2);
+  }
+  
+  .col-md-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-md-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-md-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-md-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-md-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-md-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Desktop breakpoint (lg) */
+@media (min-width: 992px) {
+  .row {
+    margin-left: calc(-1 * var(--grid-gutter-desktop) / 2);
+    margin-right: calc(-1 * var(--grid-gutter-desktop) / 2);
+  }
+  
+  [class^="col-"] {
+    padding-left: calc(var(--grid-gutter-desktop) / 2);
+    padding-right: calc(var(--grid-gutter-desktop) / 2);
+  }
+  
+  .col-lg-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-lg-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-lg-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-lg-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-lg-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-lg-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-lg-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-lg-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-lg-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-lg-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-lg-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-lg-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Extra large breakpoint (xl) */
+@media (min-width: 1200px) {
+  .col-xl-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-xl-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-xl-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-xl-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-xl-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-xl-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-xl-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-xl-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-xl-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-xl-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-xl-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-xl-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Utility classes for spacing */
+.g-0 {
+  --grid-gutter-mobile: 0px;
+  --grid-gutter-tablet: 0px;
+  --grid-gutter-desktop: 0px;
+}
+
+.g-1 {
+  --grid-gutter-mobile: 8px;
+  --grid-gutter-tablet: 16px;
+  --grid-gutter-desktop: 24px;
+}
+
+.g-2 {
+  --grid-gutter-mobile: 16px;
+  --grid-gutter-tablet: 24px;
+  --grid-gutter-desktop: 32px;
+}
+
+.g-3 {
+  --grid-gutter-mobile: 24px;
+  --grid-gutter-tablet: 32px;
+  --grid-gutter-desktop: 48px;
+}
+
+.g-4 {
+  --grid-gutter-mobile: 24px;
+  --grid-gutter-tablet: 48px;
+  --grid-gutter-desktop: 64px;
+}
+```
+
+#### 13.1.2. Grid Usage Examples
+
+```jsx
+// Example of grid system usage in a page layout
+import React from 'react';
+
+const ExamplePage = () => {
+  return (
+    <div className="container">
+      <div className="row g-4">
+        {/* Header spanning full width */}
+        <div className="col-12">
+          <h1>Page Title</h1>
+        </div>
+        
+        {/* Sidebar - 4 columns on desktop, 12 on mobile */}
+        <div className="col-12 col-lg-4">
+          <div className="sidebar">Sidebar content</div>
+        </div>
+        
+        {/* Main content - 8 columns on desktop, 12 on mobile */}
+        <div className="col-12 col-lg-8">
+          <div className="main-content">Main content area</div>
+        </div>
+        
+        {/* Three equal columns on desktop, full width on mobile */}
+        <div className="col-12 col-md-6 col-lg-4">
+          <div className="card">Feature 1</div>
+        </div>
+        <div className="col-12 col-md-6 col-lg-4">
+          <div className="card">Feature 2</div>
+        </div>
+        <div className="col-12 col-md-6 col-lg-4">
+          <div className="card">Feature 3</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ExamplePage;
+```
+
+### 13.2. Footer Component Design
+
+Following the frontend-update.md specifications, the footer design is implemented with a clean, minimalist approach, simplified layout, and proper responsive behavior.
+
+#### 13.2.1. Footer Component Implementation
+
+```jsx
+// src/components/layout/Footer.jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useTheme } from '../../hooks/useTheme';
+import Logo from '../common/Logo';
+
+const Footer = () => {
+  const { theme } = useTheme();
+  const currentYear = new Date().getFullYear();
+  
+  return (
+    <footer className={`site-footer ${theme}`}>
+      <div className="container">
+        <div className="row g-4">
+          {/* Column 1: Logo and description */}
+          <div className="col-12 col-md-6 col-lg-4">
+            <div className="footer-brand">
+              <Logo variant="footer" />
+              <p className="footer-description">
+                Improve your language skills through video transcription practice.
+                Our intuitive platform helps you learn by comparing your transcriptions
+                with the original content.
+              </p>
+            </div>
+          </div>
+          
+          {/* Column 2: Quick links */}
+          <div className="col-6 col-md-3 col-lg-2">
+            <h4 className="footer-heading">Product</h4>
+            <ul className="footer-links">
+              <li><Link to="/features">Features</Link></li>
+              <li><Link to="/pricing">Pricing</Link></li>
+              <li><Link to="/testimonials">Testimonials</Link></li>
+              <li><Link to="/faq">FAQ</Link></li>
+            </ul>
+          </div>
+          
+          {/* Column 3: Resources */}
+          <div className="col-6 col-md-3 col-lg-2">
+            <h4 className="footer-heading">Resources</h4>
+            <ul className="footer-links">
+              <li><Link to="/blog">Blog</Link></li>
+              <li><Link to="/tutorials">Tutorials</Link></li>
+              <li><Link to="/support">Support</Link></li>
+              <li><Link to="/contact">Contact Us</Link></li>
+            </ul>
+          </div>
+          
+          {/* Column 4: Legal */}
+          <div className="col-6 col-md-6 col-lg-2">
+            <h4 className="footer-heading">Legal</h4>
+            <ul className="footer-links">
+              <li><Link to="/terms-of-service">Terms of Service</Link></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/cookie-policy">Cookie Policy</Link></li>
+              <li><Link to="/accessibility">Accessibility</Link></li>
+            </ul>
+          </div>
+          
+          {/* Column 5: Social and Subscribe */}
+          <div className="col-6 col-md-6 col-lg-2">
+            <h4 className="footer-heading">Connect</h4>
+            <div className="social-links">
+              <a href="https://twitter.com/transcribepro" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <TwitterIcon />
+              </a>
+              <a href="https://facebook.com/transcribepro" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <FacebookIcon />
+              </a>
+              <a href="https://instagram.com/transcribepro" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <InstagramIcon />
+              </a>
+              <a href="https://linkedin.com/company/transcribepro" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <LinkedInIcon />
+              </a>
+            </div>
+            <div className="newsletter-signup">
+              <form onSubmit={handleNewsletterSignup}>
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  aria-label="Email for newsletter"
+                  required
+                />
+                <button type="submit" aria-label="Subscribe">
+                  <ArrowRightIcon />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom copyright bar */}
+        <div className="footer-bottom">
+          <div className="copyright">
+            © {currentYear} TranscribePro. All rights reserved.
+          </div>
+          <div className="made-with">
+            Made with <HeartIcon /> globally
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+```
+
+#### 13.2.2. Footer Styling
+
+```scss
+// src/styles/components/footer.scss
+
+.site-footer {
+  padding: 4rem 0 2rem;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  
+  // Footer becomes more compact on mobile
+  @media (max-width: 767px) {
+    padding: 3rem 0 1.5rem;
+  }
+  
+  .footer-brand {
+    margin-bottom: 1.5rem;
+    
+    .logo {
+      display: inline-block;
+      margin-bottom: 1rem;
+      
+      img {
+        height: 32px;
+      }
+    }
+    
+    .footer-description {
+      color: var(--text-tertiary);
+      margin-bottom: 1.5rem;
+      max-width: 300px;
+    }
+  }
+  
+  .footer-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+  }
+  
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      margin-bottom: 0.75rem;
+      
+      a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+        
+        &:hover {
+          color: var(--accent-primary);
+        }
+      }
+    }
+  }
+  
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: var(--accent-primary);
+        color: white;
+      }
+      
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+  
+  .newsletter-signup {
+    form {
+      display: flex;
+      
+      input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        
+        &:focus {
+          outline: none;
+          border-color: var(--accent-primary);
+        }
+      }
+      
+      button {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--accent-primary);
+        border-radius: 0 4px 4px 0;
+        background-color: var(--accent-primary);
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+          background-color: var(--accent-primary-dark);
+        }
+      }
+    }
+  }
+  
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-tertiary);
+    
+    @media (max-width: 767px) {
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+    }
+    
+    .made-with {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      
+      svg {
+        color: var(--error);
+      }
+    }
+  }
+}
+```
+
+// ... existing code ...
+
+## 14. Project Structure Alignment
+
+### 14.1. Frontend Directory Structure Integration
+
+This section provides explicit alignment with the project-directory-and-file-structure.md document, detailing how each frontend component and feature maps to the defined structure.
+
+#### 14.1.1. React Hooks Integration
+
+The application implements several custom hooks for shared functionality, following the directory structure outlined in project-directory-and-file-structure.md.
+
+```
+frontend/
+└── src/
+    └── hooks/
+        ├── useAuth.js
+        ├── useTranscription.js
+        ├── useYouTubeAPI.js
+        ├── useForm.js
+        ├── useLocalStorage.js
+        └── useTheme.js
+```
+
+##### useAuth.js
+
+```javascript
+// src/hooks/useAuth.js
+import { useState, useEffect, useContext, createContext } from 'react';
+import api from '../services/api';
+
+// Create auth context
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkAuthStatus = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          // Set auth header
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          // Get user data
+          const response = await api.get('/auth/me');
+          setUser(response.data);
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        // Clear invalid token
+        localStorage.removeItem('token');
+        api.defaults.headers.common['Authorization'] = '';
+        setError('Authentication session expired. Please log in again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuthStatus();
+  }, []);
+  
+  // Login function
+  const login = async (email, password) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { access_token, user: userData } = response.data;
+      
+      // Save token and set auth header
+      localStorage.setItem('token', access_token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      
+      // Update state
+      setUser(userData);
+      return userData;
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Login failed. Please try again.';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Register function
+  const register = async (userData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await api.post('/auth/register', userData);
+      // Automatically log in after successful registration
+      return login(userData.email, userData.password);
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Registration failed. Please try again.';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Logout function
+  const logout = async () => {
+    try {
+      // Call logout endpoint
+      await api.post('/auth/logout');
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      // Clear token and user data regardless of API response
+      localStorage.removeItem('token');
+      api.defaults.headers.common['Authorization'] = '';
+      setUser(null);
+    }
+  };
+  
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!user
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+```
+
+##### useTranscription.js
+
+```javascript
+// src/hooks/useTranscription.js
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+
+export const useTranscription = (videoId) => {
+  const [originalTranscript, setOriginalTranscript] = useState('');
+  const [userTranscript, setUserTranscript] = useState('');
+  const [comparisonResult, setComparisonResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Load original transcript
+  const loadTranscript = useCallback(async () => {
+    if (!videoId) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await api.get(`/videos/${videoId}/transcript`);
+      setOriginalTranscript(response.data.transcript);
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Failed to load transcript. Please try again.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [videoId]);
+  
+  // Update user transcript
+  const updateUserTranscript = useCallback((text) => {
+    setUserTranscript(text);
+  }, []);
+  
+  // Submit user transcription for comparison
+  const compareTranscriptions = useCallback(async () => {
+    if (!userTranscript.trim() || !originalTranscript.trim()) {
+      setError('Both transcripts are required for comparison');
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await api.post('/transcriptions/analyze', {
+        user_text: userTranscript,
+        reference_text: originalTranscript
+      });
+      
+      setComparisonResult(response.data);
+      
+      // Save transcription session to database
+      await api.post('/transcriptions', {
+        video_id: videoId,
+        user_transcription: userTranscript,
+        correct_transcription: originalTranscript,
+        accuracy_score: response.data.overall_accuracy
+      });
+      
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Comparison failed. Please try again.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [videoId, userTranscript, originalTranscript]);
+  
+  // Reset comparison results
+  const resetComparison = useCallback(() => {
+    setComparisonResult(null);
+  }, []);
+  
+  // Initialize - load transcript when videoId is available
+  useCallback(() => {
+    loadTranscript();
+  }, [loadTranscript]);
+  
+  return {
+    originalTranscript,
+    userTranscript,
+    comparisonResult,
+    loading,
+    error,
+    updateUserTranscript,
+    compareTranscriptions,
+    resetComparison,
+    loadTranscript
+  };
+};
+```
+
+##### useYouTubeAPI.js
+
+```javascript
+// src/hooks/useYouTubeAPI.js
+import { useState, useEffect, useCallback } from 'react';
+import api from '../services/api';
+
+export const useYouTubeAPI = () => {
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  
+  const [videoDetails, setVideoDetails] = useState(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState(null);
+  
+  const [trendingVideos, setTrendingVideos] = useState([]);
+  const [trendingLoading, setTrendingLoading] = useState(false);
+  const [trendingError, setTrendingError] = useState(null);
+  
+  // Search for videos
+  const searchVideos = useCallback(async (query, maxResults = 12) => {
+    if (!query.trim()) return;
+    
+    setSearchLoading(true);
+    setSearchError(null);
+    
+    try {
+      const response = await api.get('/videos/search', {
+        params: { q: query, max_results: maxResults }
+      });
+      
+      setSearchResults(response.data);
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Search failed. Please try again.';
+      setSearchError(message);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+  
+  // Get video details
+  const getVideoDetails = useCallback(async (videoId) => {
+    if (!videoId) return;
+    
+    setVideoLoading(true);
+    setVideoError(null);
+    
+    try {
+      const response = await api.get(`/videos/${videoId}`);
+      setVideoDetails(response.data);
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Failed to load video details. Please try again.';
+      setVideoError(message);
+    } finally {
+      setVideoLoading(false);
+    }
+  }, []);
+  
+  // Get trending videos
+  const getTrendingVideos = useCallback(async (category = null, limit = 10) => {
+    setTrendingLoading(true);
+    setTrendingError(null);
+    
+    try {
+      const params = { limit };
+      if (category) params.category = category;
+      
+      const response = await api.get('/videos/trending', { params });
+      
+      setTrendingVideos(response.data);
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Failed to load trending videos. Please try again.';
+      setTrendingError(message);
+    } finally {
+      setTrendingLoading(false);
+    }
+  }, []);
+  
+  return {
+    // Search functionality
+    searchVideos,
+    searchResults,
+    searchLoading,
+    searchError,
+    
+    // Video details functionality
+    getVideoDetails,
+    videoDetails,
+    videoLoading,
+    videoError,
+    
+    // Trending videos functionality
+    getTrendingVideos,
+    trendingVideos,
+    trendingLoading,
+    trendingError
+  };
+};
+```
+
+##### useLocalStorage.js
+
+```javascript
+// src/hooks/useLocalStorage.js
+import { useState, useEffect } from 'react';
+
+export function useLocalStorage(key, initialValue) {
+  // State to store our value
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      // Get from local storage by key
+      const item = window.localStorage.getItem(key);
+      // Parse stored json or if none return initialValue
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      // If error also return initialValue
+      console.error(`Error reading localStorage key "${key}":`, error);
+      return initialValue;
+    }
+  });
+
+  // Listen for changes to this localStorage key in other tabs/windows
+  useEffect(() => {
+    function handleStorageChange(e) {
+      if (e.key === key) {
+        try {
+          // If the key is updated in another window, update our state
+          setStoredValue(e.newValue ? JSON.parse(e.newValue) : initialValue);
+        } catch (error) {
+          console.error(`Error parsing localStorage change for key "${key}":`, error);
+        }
+      }
+    }
+
+    // Listen for the storage event
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [key, initialValue]);
+
+  // Return a wrapped version of useState's setter function that
+  // persists the new value to localStorage.
+  const setValue = (value) => {
+    try {
+      // Allow value to be a function so we have same API as useState
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      
+      // Save state
+      setStoredValue(valueToStore);
+      
+      // Save to local storage
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      // A more advanced implementation would handle the error case
+      console.error(`Error setting localStorage key "${key}":`, error);
+    }
+  };
+
+  const removeValue = () => {
+    try {
+      // Remove from state
+      setStoredValue(initialValue);
+      
+      // Remove from localStorage
+      window.localStorage.removeItem(key);
+    } catch (error) {
+      console.error(`Error removing localStorage key "${key}":`, error);
+    }
+  };
+
+  return [storedValue, setValue, removeValue];
+}
+```
+
+#### 14.1.2. Context API Implementation
+
+In accordance with the frontend directory structure, the application implements the following contexts:
+
+```
+frontend/
+└── src/
+    └── contexts/
+        ├── AuthContext.js
+        ├── ThemeContext.js
+        ├── TranscriptionContext.js
+        ├── UserPreferencesContext.js
+        └── NotificationContext.js
+```
+
+##### TranscriptionContext.js
+
+```javascript
+// src/contexts/TranscriptionContext.js
+import React, { createContext, useContext, useReducer } from 'react';
+
+// Initial state
+const initialState = {
+  videoId: null,
+  originalTranscript: '',
+  userTranscript: '',
+  comparisonResult: null,
+  drafts: {},
+  history: [],
+  isSubmitting: false,
+  error: null
+};
+
+// Action types
+const actionTypes = {
+  SET_VIDEO: 'SET_VIDEO',
+  SET_ORIGINAL_TRANSCRIPT: 'SET_ORIGINAL_TRANSCRIPT',
+  UPDATE_USER_TRANSCRIPT: 'UPDATE_USER_TRANSCRIPT',
+  SET_COMPARISON_RESULT: 'SET_COMPARISON_RESULT',
+  SAVE_DRAFT: 'SAVE_DRAFT',
+  LOAD_DRAFT: 'LOAD_DRAFT',
+  CLEAR_DRAFT: 'CLEAR_DRAFT',
+  ADD_TO_HISTORY: 'ADD_TO_HISTORY',
+  SET_SUBMITTING: 'SET_SUBMITTING',
+  SET_ERROR: 'SET_ERROR',
+  RESET: 'RESET'
+};
+
+// Reducer function
+function transcriptionReducer(state, action) {
+  switch (action.type) {
+    case actionTypes.SET_VIDEO:
+      return {
+        ...state,
+        videoId: action.payload,
+        userTranscript: '',
+        comparisonResult: null,
+        error: null
+      };
+      
+    case actionTypes.SET_ORIGINAL_TRANSCRIPT:
+      return {
+        ...state,
+        originalTranscript: action.payload
+      };
+      
+    case actionTypes.UPDATE_USER_TRANSCRIPT:
+      return {
+        ...state,
+        userTranscript: action.payload,
+        comparisonResult: null
+      };
+      
+    case actionTypes.SET_COMPARISON_RESULT:
+      return {
+        ...state,
+        comparisonResult: action.payload,
+        isSubmitting: false
+      };
+      
+    case actionTypes.SAVE_DRAFT:
+      return {
+        ...state,
+        drafts: {
+          ...state.drafts,
+          [action.payload.videoId]: action.payload.content
+        }
+      };
+      
+    case actionTypes.LOAD_DRAFT:
+      return {
+        ...state,
+        userTranscript: state.drafts[action.payload] || '',
+        comparisonResult: null
+      };
+      
+    case actionTypes.CLEAR_DRAFT:
+      const { [action.payload]: _, ...remainingDrafts } = state.drafts;
+      return {
+        ...state,
+        drafts: remainingDrafts
+      };
+      
+    case actionTypes.ADD_TO_HISTORY:
+      return {
+        ...state,
+        history: [action.payload, ...state.history].slice(0, 50) // Keep last 50 entries
+      };
+      
+    case actionTypes.SET_SUBMITTING:
+      return {
+        ...state,
+        isSubmitting: action.payload
+      };
+      
+    case actionTypes.SET_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        isSubmitting: false
+      };
+      
+    case actionTypes.RESET:
+      return {
+        ...initialState,
+        history: state.history,
+        drafts: state.drafts
+      };
+      
+    default:
+      return state;
+  }
+}
+
+// Create context
+const TranscriptionContext = createContext();
+
+// Provider component
+export const TranscriptionProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(transcriptionReducer, initialState);
+  
+  return (
+    <TranscriptionContext.Provider value={{ state, dispatch, actionTypes }}>
+      {children}
+    </TranscriptionContext.Provider>
+  );
+};
+
+// Custom hook to use the transcription context
+export const useTranscriptionContext = () => {
+  const context = useContext(TranscriptionContext);
+  
+  if (context === undefined) {
+    throw new Error('useTranscriptionContext must be used within a TranscriptionProvider');
+  }
+  
+  return context;
+};
+```
+
+##### UserPreferencesContext.js
+
+```javascript
+// src/contexts/UserPreferencesContext.js
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import api from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+
+const defaultPreferences = {
+  pauseDelay: 2,        // Default pause delay in seconds
+  rewindTime: 2,        // Default rewind time in seconds
+  autoSave: true,       // Auto-save drafts
+  showTimestamps: true, // Show timestamps in transcription
+  fontSize: 'medium',   // Font size for transcription
+  language: 'en',       // Default language
+  notifications: true   // Enable notifications
+};
+
+const UserPreferencesContext = createContext();
+
+export const UserPreferencesProvider = ({ children }) => {
+  const [preferences, setPreferences] = useLocalStorage('user_preferences', defaultPreferences);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { user, isAuthenticated } = useAuth();
+  
+  // Load preferences from server for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const loadUserPreferences = async () => {
+        setIsLoading(true);
+        setError(null);
+        
+        try {
+          const response = await api.get('/users/me/preferences');
+          
+          // Merge with defaults to ensure all keys exist
+          const serverPrefs = response.data || {};
+          setPreferences({
+            ...defaultPreferences,
+            ...serverPrefs
+          });
+        } catch (err) {
+          console.error('Failed to load user preferences:', err);
+          setError('Failed to load your preferences. Using default settings.');
+          // Keep using localStorage preferences
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadUserPreferences();
+    }
+  }, [isAuthenticated, user, setPreferences]);
+  
+  // Save preferences
+  const updatePreferences = async (newPrefs) => {
+    // Update local state immediately
+    const updatedPreferences = { ...preferences, ...newPrefs };
+    setPreferences(updatedPreferences);
+    
+    // Save to server if authenticated
+    if (isAuthenticated) {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        await api.put('/users/me/preferences', updatedPreferences);
+      } catch (err) {
+        console.error('Failed to save preferences to server:', err);
+        setError('Your preferences are saved locally but could not be synced to your account.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    return updatedPreferences;
+  };
+  
+  // Reset to defaults
+  const resetPreferences = () => {
+    return updatePreferences(defaultPreferences);
+  };
+  
+  return (
+    <UserPreferencesContext.Provider 
+      value={{
+        preferences,
+        updatePreferences,
+        resetPreferences,
+        isLoading,
+        error
+      }}
+    >
+      {children}
+    </UserPreferencesContext.Provider>
+  );
+};
+
+export const useUserPreferences = () => {
+  const context = useContext(UserPreferencesContext);
+  
+  if (context === undefined) {
+    throw new Error('useUserPreferences must be used within a UserPreferencesProvider');
+  }
+  
+  return context;
+};
+```
+
+// ... existing code ...
+
+### 14.2. Backend Directory Structure Alignment
+
+This section explicitly aligns the backend implementation with the project-directory-and-file-structure.md document, detailing how each component of the backend maps to the defined structure.
+
+#### 14.2.1. Core Backend Structure
+
+The backend follows a modular structure that promotes clean separation of concerns:
+
+```
+backend/
+├── app/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── dependencies.py
+│   │   └── routes/
+│   │       ├── __init__.py
+│   │       ├── auth.py
+│   │       ├── videos.py
+│   │       ├── transcriptions.py
+│   │       └── subscriptions.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── security.py
+│   │   └── exceptions.py
+│   ├── db/
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   └── crud/
+│   │       ├── __init__.py
+│   │       ├── users.py
+│   │       ├── videos.py
+│   │       ├── transcriptions.py
+│   │       └── subscriptions.py
+│   ├── schemas/
+│   ├── services/
+│   ├── utils/
+│   └── main.py
+├── alembic/
+├── tests/
+└── requirements.txt
+```
+
+##### Configuration Management (core/config.py)
+
+```python
+# app/core/config.py
+from pydantic import BaseSettings, PostgresDsn, validator, EmailStr
+from typing import List, Optional, Union, Dict, Any
+import secrets
+from enum import Enum
+
+
+class Environment(str, Enum):
+    DEVELOPMENT = "development"
+    TESTING = "testing"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+
+class Settings(BaseSettings):
+    """
+    Application settings. Loads from environment variables and .env file
+    """
+    # Core settings
+    API_V1_STR: str = "/api/v1"
+    ENVIRONMENT: Environment = Environment.DEVELOPMENT
+    SECRET_KEY: str = secrets.token_urlsafe(32)
+    DEBUG: bool = True
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost", "http://localhost:3000"]
+    
+    # Authentication settings
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    
+    # Database settings
+    DATABASE_URL: Union[PostgresDsn, str] = "postgresql://postgres:postgres@localhost:5432/videotranscribe"
+    
+    # Elasticsearch settings
+    ELASTICSEARCH_HOST: str = "localhost"
+    ELASTICSEARCH_PORT: int = 9200
+    ELASTICSEARCH_USERNAME: Optional[str] = None
+    ELASTICSEARCH_PASSWORD: Optional[str] = None
+    
+    # YouTube API settings
+    YOUTUBE_API_KEY: str
+    
+    # Stripe settings
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_PRICE_ID_MONTHLY: Optional[str] = None
+    STRIPE_PRICE_ID_YEARLY: Optional[str] = None
+    
+    # Email settings
+    EMAILS_ENABLED: bool = False
+    SMTP_TLS: bool = True
+    SMTP_PORT: Optional[int] = None
+    SMTP_HOST: Optional[str] = None
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAILS_FROM_EMAIL: Optional[EmailStr] = None
+    EMAILS_FROM_NAME: Optional[str] = None
+    
+    # Transcription cache settings
+    TRANSCRIPTION_CACHE_SIZE_MB: int = 100
+    
+    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+    
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
+
+
+# Create global settings instance
+settings = Settings()
+```
+
+##### API Dependencies (api/dependencies.py)
+
+```python
+# app/api/dependencies.py
+from typing import Generator, Optional
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.core.security import ALGORITHM
+from app.db.database import SessionLocal
+from app.db import models, crud
+from app.schemas import tokens
+
+
+# Define the OAuth2 password bearer token URL
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/login"
+)
+
+
+def get_db() -> Generator:
+    """
+    Creates and yields a database session.
+    
+    Yields:
+        Database session that will be used in a single request
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def get_current_user(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+) -> models.User:
+    """
+    Get the current authenticated user from the token.
+    
+    Args:
+        db: Database session
+        token: JWT access token
+        
+    Returns:
+        The authenticated user
+        
+    Raises:
+        HTTPException: If authentication fails
+    """
+    try:
+        # Decode JWT token
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        token_data = tokens.TokenPayload(**payload)
+    except (JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get user from database
+    user = crud.users.get_by_id(db, id=token_data.sub)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return user
+
+
+def get_premium_user(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    """
+    Verify the user has premium subscription.
+    
+    Args:
+        current_user: The authenticated user
+        
+    Returns:
+        The authenticated premium user
+        
+    Raises:
+        HTTPException: If user does not have premium access
+    """
+    if not current_user.is_premium:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Premium subscription required for this feature"
+        )
+    
+    return current_user
+
+
+def get_youtube_client():
+    """
+    Get a configured YouTube API client.
+    
+    Returns:
+        YouTubeClient instance
+    """
+    from app.services.youtube import YouTubeClient
+    return YouTubeClient(api_key=settings.YOUTUBE_API_KEY)
+```
+
+#### 14.2.2. Database CRUD Operations (db/crud)
+
+Following the project directory structure, the CRUD operations are organized by entity type:
+
+##### db/crud/transcriptions.py
+
+```python
+# app/db/crud/transcriptions.py
+from typing import List, Optional, Union
+from uuid import UUID
+from sqlalchemy.orm import Session
+from sqlalchemy import desc
+
+from app.db.models import TranscriptionSession, User
+from app.schemas.transcriptions import TranscriptionCreate
+
+
+def create(db: Session, transcription: TranscriptionCreate, user_id: UUID) -> TranscriptionSession:
+    """
+    Create a new transcription session.
+    
+    Args:
+        db: Database session
+        transcription: Transcription data
+        user_id: User ID who created the transcription
+        
+    Returns:
+        Created transcription session
+    """
+    db_transcription = TranscriptionSession(
+        **transcription.dict(),
+        user_id=user_id
+    )
+    db.add(db_transcription)
+    db.commit()
+    db.refresh(db_transcription)
+    return db_transcription
+
+
+def get_by_id(db: Session, id: UUID) -> Optional[TranscriptionSession]:
+    """
+    Get transcription session by ID.
+    
+    Args:
+        db: Database session
+        id: Transcription session ID
+        
+    Returns:
+        Transcription session if found, None otherwise
+    """
+    return db.query(TranscriptionSession).filter(TranscriptionSession.id == id).first()
+
+
+def get_by_user_and_video(
+    db: Session, user_id: UUID, video_id: str
+) -> Optional[TranscriptionSession]:
+    """
+    Get a user's transcription session for a specific video.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        video_id: YouTube video ID
+        
+    Returns:
+        Latest transcription session if found, None otherwise
+    """
+    return db.query(TranscriptionSession).filter(
+        TranscriptionSession.user_id == user_id,
+        TranscriptionSession.video_id == video_id
+    ).order_by(desc(TranscriptionSession.created_at)).first()
+
+
+def get_by_user(
+    db: Session, user_id: UUID, skip: int = 0, limit: int = 100
+) -> List[TranscriptionSession]:
+    """
+    Get all transcription sessions for a user.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        skip: Number of records to skip
+        limit: Maximum number of records to return
+        
+    Returns:
+        List of transcription sessions
+    """
+    return db.query(TranscriptionSession).filter(
+        TranscriptionSession.user_id == user_id
+    ).order_by(desc(TranscriptionSession.created_at)).offset(skip).limit(limit).all()
+
+
+def update(
+    db: Session, 
+    db_transcription: TranscriptionSession, 
+    update_data: dict
+) -> TranscriptionSession:
+    """
+    Update transcription session.
+    
+    Args:
+        db: Database session
+        db_transcription: Transcription session to update
+        update_data: Data to update
+        
+    Returns:
+        Updated transcription session
+    """
+    for key, value in update_data.items():
+        setattr(db_transcription, key, value)
+    
+    db.commit()
+    db.refresh(db_transcription)
+    return db_transcription
+
+
+def delete(db: Session, id: UUID) -> bool:
+    """
+    Delete transcription session.
+    
+    Args:
+        db: Database session
+        id: Transcription session ID
+        
+    Returns:
+        True if deleted, False otherwise
+    """
+    db_transcription = get_by_id(db, id)
+    if not db_transcription:
+        return False
+    
+    db.delete(db_transcription)
+    db.commit()
+    return True
+
+
+def get_user_stats(db: Session, user_id: UUID) -> dict:
+    """
+    Get statistics about a user's transcription activity.
+    
+    Args:
+        db: Database session
+        user_id: User ID
+        
+    Returns:
+        Dictionary with transcription statistics
+    """
+    # Total sessions
+    total_sessions = db.query(TranscriptionSession).filter(
+        TranscriptionSession.user_id == user_id
+    ).count()
+    
+    # Average accuracy
+    avg_accuracy_query = db.query(
+        db.func.avg(TranscriptionSession.accuracy_score)
+    ).filter(
+        TranscriptionSession.user_id == user_id,
+        TranscriptionSession.accuracy_score.isnot(None)
+    ).scalar()
+    
+    avg_accuracy = float(avg_accuracy_query) if avg_accuracy_query is not None else 0.0
+    
+    # Recent sessions (last 5)
+    recent_sessions = db.query(TranscriptionSession).filter(
+        TranscriptionSession.user_id == user_id
+    ).order_by(desc(TranscriptionSession.created_at)).limit(5).all()
+    
+    # Videos transcribed count (unique video_ids)
+    unique_videos = db.query(
+        db.func.count(db.func.distinct(TranscriptionSession.video_id))
+    ).filter(
+        TranscriptionSession.user_id == user_id
+    ).scalar()
+    
+    return {
+        "total_sessions": total_sessions,
+        "average_accuracy": avg_accuracy,
+        "recent_sessions": recent_sessions,
+        "unique_videos_count": unique_videos
+    }
+```
+
+### 14.3. Test Directory Structure
+
+The application implements a comprehensive testing strategy with the following structure, aligned with the project-directory-and-file-structure.md document:
+
+```
+backend/
+└── tests/
+    ├── conftest.py
+    ├── test_api/
+    │   ├── test_auth.py
+    │   ├── test_videos.py
+    │   ├── test_transcriptions.py
+    │   └── test_subscriptions.py
+    ├── test_services/
+    │   ├── test_youtube.py
+    │   ├── test_transcription.py
+    │   └── test_payment.py
+    ├── test_core/
+    │   ├── test_security.py
+    │   └── test_config.py
+    └── test_utils/
+        └── test_text_comparison.py
+```
+
+#### 14.3.1. Test Configuration (conftest.py)
+
+```python
+# tests/conftest.py
+import pytest
+from typing import Dict, Generator
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+import uuid
+
+from app.core.config import settings
+from app.db.base import Base
+from app.db.database import get_db
+from app.main import app
+from app.db.models import User, TranscriptionSession, Subscription
+from app.core.security import get_password_hash, create_access_token
+
+
+# Use in-memory SQLite for testing
+@pytest.fixture(scope="session")
+def db_engine():
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(bind=engine)
+    yield engine
+
+
+@pytest.fixture(scope="function")
+def db_session(db_engine):
+    connection = db_engine.connect()
+    transaction = connection.begin()
+    
+    # Create a session bound to the connection
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=connection)
+    session = TestingSessionLocal()
+    
+    # Dependency override
+    app.dependency_overrides[get_db] = lambda: session
+    
+    yield session
+    
+    # Rollback the transaction and close the connection
+    session.close()
+    transaction.rollback()
+    connection.close()
+
+
+@pytest.fixture(scope="function")
+def client(db_session):
+    with TestClient(app) as c:
+        yield c
+
+
+@pytest.fixture
+def normal_user(db_session) -> User:
+    user = User(
+        username="testuser",
+        email="test@example.com",
+        password_hash=get_password_hash("password123"),
+        is_premium=False
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def premium_user(db_session) -> User:
+    user = User(
+        username="premiumuser",
+        email="premium@example.com",
+        password_hash=get_password_hash("password123"),
+        is_premium=True
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def normal_user_token(normal_user: User) -> str:
+    return create_access_token(data={"sub": str(normal_user.id)})
+
+
+@pytest.fixture
+def premium_user_token(premium_user: User) -> str:
+    return create_access_token(data={"sub": str(premium_user.id)})
+
+
+@pytest.fixture
+def normal_user_headers(normal_user_token: str) -> Dict[str, str]:
+    return {"Authorization": f"Bearer {normal_user_token}"}
+
+
+@pytest.fixture
+def premium_user_headers(premium_user_token: str) -> Dict[str, str]:
+    return {"Authorization": f"Bearer {premium_user_token}"}
+
+
+@pytest.fixture
+def sample_transcription(db_session, normal_user) -> TranscriptionSession:
+    transcription = TranscriptionSession(
+        user_id=normal_user.id,
+        video_id="test123",
+        user_transcription="This is a test transcription",
+        correct_transcription="This is a test transcription",
+        accuracy_score=1.0
+    )
+    db_session.add(transcription)
+    db_session.commit()
+    db_session.refresh(transcription)
+    return transcription
+
+
+@pytest.fixture
+def mock_youtube_api(monkeypatch):
+    """Mock the YouTube API client to avoid real API calls during tests."""
+    class MockYouTubeClient:
+        def __init__(self, api_key=None):
+            pass
+            
+        async def search_videos(self, query, max_results=10):
+            return [
+                {
+                    "id": "test123",
+                    "title": "Test Video",
+                    "thumbnail": "https://example.com/thumb.jpg",
+                    "channel": "Test Channel",
+                    "published_at": "2023-01-01T00:00:00Z"
+                }
+            ]
+            
+        async def get_video_details(self, video_id):
+            return {
+                "video_id": video_id,
+                "title": "Test Video",
+                "channel": "Test Channel",
+                "description": "Test description",
+                "embed_url": f"https://www.youtube.com/embed/{video_id}",
+                "duration": "PT5M30S"
+            }
+            
+        async def list_captions(self, video_id):
+            return ["en", "es"]
+    
+    from app.services.youtube import YouTubeClient
+    monkeypatch.setattr("app.services.youtube.YouTubeClient", MockYouTubeClient)
+    return MockYouTubeClient()
+
+
+@pytest.fixture
+def mock_transcript_service(monkeypatch):
+    """Mock the transcript service to avoid real API calls during tests."""
+    class MockTranscriptService:
+        def __init__(self, youtube_client=None, cache_enabled=True):
+            pass
+            
+        async def get_transcript(self, video_id, languages=None, debug_mode=False):
+            return "This is a test transcript for video " + video_id, [0.0, 0.5, 1.0, 1.5, 2.0]
+            
+        async def check_captions_availability(self, video_id):
+            return True
+    
+    from app.services.transcription import TranscriptService
+    monkeypatch.setattr("app.services.transcription.TranscriptService", MockTranscriptService)
+    return MockTranscriptService()
+```
+
+#### 14.3.2. API Tests (test_api/test_transcriptions.py)
+
+```python
+# tests/test_api/test_transcriptions.py
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from app.db.models import User, TranscriptionSession
+
+
+def test_create_transcription(
+    client: TestClient, 
+    db_session: Session, 
+    normal_user_headers: dict, 
+    normal_user: User
+):
+    """Test creating a new transcription."""
+    payload = {
+        "video_id": "new_video_123",
+        "user_transcription": "This is a user transcription test",
+        "correct_transcription": "This is the correct transcription",
+        "accuracy_score": 0.85
+    }
+    
+    response = client.post(
+        "/api/v1/transcriptions",
+        json=payload,
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["video_id"] == payload["video_id"]
+    assert data["user_id"] == str(normal_user.id)
+    assert data["accuracy_score"] == payload["accuracy_score"]
+    
+    # Verify it's in the database
+    db_transcription = db_session.query(TranscriptionSession).filter(
+        TranscriptionSession.id == data["id"]
+    ).first()
+    
+    assert db_transcription is not None
+    assert db_transcription.video_id == payload["video_id"]
+    assert db_transcription.user_transcription == payload["user_transcription"]
+
+
+def test_get_transcription_history(
+    client: TestClient, 
+    db_session: Session, 
+    normal_user_headers: dict, 
+    normal_user: User,
+    sample_transcription: TranscriptionSession
+):
+    """Test retrieving a user's transcription history."""
+    response = client.get(
+        "/api/v1/transcriptions",
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    
+    found = False
+    for item in data:
+        if item["id"] == str(sample_transcription.id):
+            found = True
+            assert item["video_id"] == sample_transcription.video_id
+            assert item["accuracy_score"] == sample_transcription.accuracy_score
+    
+    assert found, "Sample transcription not found in history"
+
+
+def test_get_transcription_by_id(
+    client: TestClient, 
+    normal_user_headers: dict, 
+    sample_transcription: TranscriptionSession
+):
+    """Test retrieving a specific transcription by ID."""
+    response = client.get(
+        f"/api/v1/transcriptions/{sample_transcription.id}",
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == str(sample_transcription.id)
+    assert data["video_id"] == sample_transcription.video_id
+    assert data["user_transcription"] == sample_transcription.user_transcription
+    assert data["correct_transcription"] == sample_transcription.correct_transcription
+    assert data["accuracy_score"] == sample_transcription.accuracy_score
+
+
+def test_get_other_user_transcription_fails(
+    client: TestClient, 
+    db_session: Session,
+    premium_user_headers: dict, 
+    sample_transcription: TranscriptionSession
+):
+    """Test that a user cannot access another user's transcription."""
+    response = client.get(
+        f"/api/v1/transcriptions/{sample_transcription.id}",
+        headers=premium_user_headers
+    )
+    
+    assert response.status_code == 403
+
+
+def test_analyze_transcription(
+    client: TestClient, 
+    normal_user_headers: dict
+):
+    """Test the transcription analysis endpoint."""
+    payload = {
+        "user_text": "This is a tost transcription",
+        "reference_text": "This is a test transcription"
+    }
+    
+    response = client.post(
+        "/api/v1/transcriptions/analyze",
+        json=payload,
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert "comparison" in data
+    assert "overall_accuracy" in data
+    assert "stats" in data
+    
+    assert data["overall_accuracy"] > 0 and data["overall_accuracy"] <= 1
+    assert isinstance(data["comparison"], list)
+    
+    # Check the comparison results for the word "tost" (should be marked as mistake)
+    found_mistake = False
+    for item in data["comparison"]:
+        if item["text"] == "tost" and item["type"] == "mistake":
+            found_mistake = True
+            break
+    
+    assert found_mistake, "Expected 'tost' to be marked as a mistake"
+    
+    # Verify stats
+    assert data["stats"]["total_words"] == len(payload["reference_text"].split())
+    assert data["stats"]["correct_words"] + data["stats"]["mistake_words"] + \
+           data["stats"]["missing_words"] + data["stats"]["wrong_words"] == \
+           max(len(payload["user_text"].split()), len(payload["reference_text"].split()))
+
+
+def test_delete_transcription(
+    client: TestClient, 
+    db_session: Session,
+    normal_user_headers: dict, 
+    sample_transcription: TranscriptionSession
+):
+    """Test deleting a transcription."""
+    response = client.delete(
+        f"/api/v1/transcriptions/{sample_transcription.id}",
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 204
+    
+    # Verify it's deleted from the database
+    db_transcription = db_session.query(TranscriptionSession).filter(
+        TranscriptionSession.id == sample_transcription.id
+    ).first()
+    
+    assert db_transcription is None
+
+
+def test_get_user_stats(
+    client: TestClient,
+    db_session: Session,
+    normal_user_headers: dict,
+    normal_user: User,
+    sample_transcription: TranscriptionSession
+):
+    """Test retrieving user transcription statistics."""
+    # Add another transcription to get more interesting stats
+    second_transcription = TranscriptionSession(
+        user_id=normal_user.id,
+        video_id="test456",
+        user_transcription="This is another test",
+        correct_transcription="This is another test",
+        accuracy_score=0.9
+    )
+    db_session.add(second_transcription)
+    db_session.commit()
+    
+    response = client.get(
+        "/api/v1/users/me/stats",
+        headers=normal_user_headers
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    
+    assert data["total_sessions"] >= 2
+    assert data["unique_videos_count"] >= 2
+    assert "average_accuracy" in data
+    assert data["average_accuracy"] > 0
+    assert "recent_sessions" in data
+    assert isinstance(data["recent_sessions"], list)
+    assert len(data["recent_sessions"]) >= 1
+```
+
+// ... existing code ...
+
+## 15. Additional Implementation Guidelines
+
+### 15.1. Code Documentation and Organization
+
+- **Module Documentation**: For any code module created, include complete documentation of the requirements this module fulfills in comments at the top of the file.
+- **File Size Limits**: Strictly maintain files under 200-300 lines of code. Refactor when approaching these limits.
+- **Scripting Practices**: Avoid writing scripts in files whenever possible, especially if the script is likely to be run only once.
+- **Environment Variables**: NEVER overwrite any .env file without first asking and confirming with the project owner.
+
+### 15.2. Change Management
+
+- **Changelog Updates**: All changes implemented must be documented in `progress-tracking/CHANGELOG.md`.
+- **Implementation Scope**: DO NOT touch code that is unrelated to the task at hand.
+- **Technology Introduction**: When fixing an issue or bug, DO NOT introduce a new pattern or technology without first exhausting all other options for the existing implementation. If a new pattern must be introduced, REMOVE the old implementation to avoid duplicate logic.
+
+### 15.3. Testing Requirements
+
+- **Test Framework**: Implement Pytest with mocked data for all backend components.
+- **Test Coverage**: Ensure tests cover all requirements specified in the application.
+- **Mocking Data**: Mocking data is ONLY permitted for tests, NEVER for dev or prod environments.
+- **Stubbing Practices**: Never add stubbing or fake data patterns to code that affects the dev or prod environments.
+
+### 15.4. Environment Considerations
+
+- **Environment Awareness**: All code must take into account the different environments: dev, test, and prod.
+- **Elasticsearch Indexes**: Ensure Elasticsearch configurations include separate dev and prod indexes.
+
+All implementation work must adhere to these guidelines in addition to the detailed specifications in previous sections. 
+
+## 16. Conclusion
+
+This specification provides a comprehensive, unified guide for the design, implementation, and compliance of the transcription workflow application. All requirements, technical details, and best practices are integrated to ensure a robust, scalable, and maintainable system. Future work and all development must adhere strictly to this document, with any changes tracked in the project changelog. For questions or clarifications, refer to the relevant section or contact the project owner.
