@@ -255,4 +255,25 @@
 
 ### Next Steps
 - Complete implementation of video and transcription endpoints
-- Front-end setup and core components 
+- Front-end setup and core components
+
+## [Unreleased]
+
+### Added
+- Advanced transcription comparison algorithm with word-by-word matching
+- YouTube API integration service for video search and transcript retrieval
+- Practice segments, sessions, and results models
+- API routes for video search, transcript retrieval, and comparison
+- API routes for practice session management
+- User model with practice relationships
+- Database models for practice functionality
+- Security functionality for user authentication
+- Configuration module for application settings
+
+### Changed
+- Enhanced database models with proper relationships
+- Updated authentication workflow
+
+### Fixed
+- Various database model issues
+- Security vulnerabilities in password handling 

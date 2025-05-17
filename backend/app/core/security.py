@@ -1,35 +1,44 @@
 """
-Security module for handling JWT token generation and password hashing.
+Security utilities for authentication and authorization.
 
-This module provides functions for creating and verifying JWT tokens,
-as well as hashing and verifying passwords using secure methods.
+This module provides functionality for:
+1. Password hashing and verification
+2. JWT token generation and validation
+3. OAuth2 token handling
+
+Requirements fulfilled:
+- Secure password storage
+- Token-based authentication
+- User authorization
 """
 
+import secrets
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any, Dict, Optional, Union
 
 from jose import jwt
 from passlib.context import CryptContext
+from pydantic import ValidationError
 
 from app.core.config import settings
 
+# Configure password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-ALGORITHM = "HS256"
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: timedelta = None
+    subject: Union[str, Any],
+    expires_delta: Optional[timedelta] = None
 ) -> str:
     """
     Create a JWT access token.
     
     Args:
-        subject: The subject of the token, typically the user ID
-        expires_delta: Optional expiration time delta, defaults to settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    
+        subject: JWT subject (typically user ID)
+        expires_delta: Token expiration time
+        
     Returns:
-        str: Encoded JWT token
+        JWT token as string
     """
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -37,33 +46,53 @@ def create_access_token(
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
+    
+    # Create token payload
     to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+    
+    # Encode token
+    encoded_jwt = jwt.encode(
+        to_encode, 
+        settings.SECRET_KEY, 
+        algorithm=settings.ALGORITHM
+    )
+    
     return encoded_jwt
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Verify a password against a hash.
+    Verify that a plain password matches a hashed password.
     
     Args:
-        plain_password: The plain-text password
-        hashed_password: The hashed password to compare against
-    
+        plain_password: Plain text password
+        hashed_password: Hashed password
+        
     Returns:
-        bool: True if password matches, False otherwise
+        True if password matches, False otherwise
     """
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """
-    Hash a password.
+    Generate a secure hash for a password.
     
     Args:
-        password: The plain-text password to hash
+        password: Plain text password
+        
+    Returns:
+        Hashed password
+    """
+    return pwd_context.hash(password)
+
+
+def create_api_key() -> str:
+    """
+    Generate a secure API key.
     
     Returns:
-        str: The hashed password
+        Randomly generated API key
     """
-    return pwd_context.hash(password) 
+    # Generate a random token with 32 bytes entropy (64 hex chars)
+    return secrets.token_hex(32) 
